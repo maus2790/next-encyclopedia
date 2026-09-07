@@ -1,0 +1,1060 @@
+[
+  {
+    "id": "http-methods",
+    "nombre": "Métodos HTTP (Verbos)",
+    "capa": "capa-0",
+    "capaNumero": 0,
+    "capaNombre": "El Contrato Base (HTTP y la Web)",
+    "descripcion_corta": "GET (leer), POST (crear), PUT/PATCH (actualizar), DELETE (borrar): el contrato de acción en la web.",
+    "explicacion": "<p>Los <strong>métodos HTTP</strong> definen la semántica de la operación que el cliente solicita sobre un recurso determinado en el servidor.</p><ul><li><strong>GET</strong>: Recupera datos. Debe ser seguro e idempotente (no altera el estado del servidor).</li><li><strong>POST</strong>: Crea un nuevo recurso subordinado o envía datos para procesamiento.</li><li><strong>PUT</strong>: Reemplaza completamente la representación del recurso destino.</li><li><strong>PATCH</strong>: Aplica modificaciones parciales a un recurso existente.</li><li><strong>DELETE</strong>: Elimina el recurso especificado.</li><li><strong>OPTIONS / HEAD</strong>: Inspección de capacidades CORS y cabeceras sin descargar el cuerpo.</li></ul>",
+    "resumen_practico": "En Next.js (App Router), tus Route Handlers en `app/api/.../route.ts` exportan funciones nombradas `export async function GET()`, `POST()`, etc., mientras que las Server Actions simplifican mutaciones directas tipo POST.",
+    "en_tu_stack": "Next.js 16 + Route Handlers & Server Actions",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "app/api/users/route.ts (Next.js 16)",
+      "codigo": "import { NextResponse } from 'next/server';\n\n// GET: Lectura de usuarios\nexport async function GET(request: Request) {\n  const { searchParams } = new URL(request.url);\n  const limit = Number(searchParams.get('limit')) || 10;\n  return NextResponse.json({ success: true, count: limit, data: [] });\n}\n\n// POST: Creación con validación\nexport async function POST(request: Request) {\n  const body = await request.json();\n  if (!body.email) {\n    return NextResponse.json({ error: 'Email requerido' }, { status: 400 });\n  }\n  return NextResponse.json({ message: 'Usuario creado', user: body }, { status: 201 });\n}"
+    },
+    "tags": ["http", "rest", "api", "nextjs16", "route-handlers"],
+    "relacionados": ["http-status-codes", "headers", "api-routes", "server-actions"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo estructurar Route Handlers RESTful con validación en Next.js 16?",
+      "prompt_completo": "Muéstrame un ejemplo completo de Route Handlers en Next.js 16 (app/api/products/[id]/route.ts) implementando GET, PATCH y DELETE con tipado en TypeScript, validación de schemas con Zod y manejo de errores con códigos de estado HTTP correctos."
+    }
+  },
+  {
+    "id": "http-status-codes",
+    "nombre": "Códigos de Estado HTTP",
+    "capa": "capa-0",
+    "capaNumero": 0,
+    "capaNombre": "El Contrato Base (HTTP y la Web)",
+    "descripcion_corta": "2xx (éxito), 3xx (redirección), 4xx (error del cliente), 5xx (error del servidor).",
+    "explicacion": "<p>Los códigos de estado HTTP comunican al cliente el resultado de su petición de forma estandarizada:</p><ul><li><strong>200 OK / 201 Created / 204 No Content</strong>: Petición exitosa.</li><li><strong>301 Moved Permanently / 307 Temporary / 308 Permanent Redirect</strong>: Redirecciones de navegación o SEO.</li><li><strong>400 Bad Request</strong>: Payload o parámetros inválidos.</li><li><strong>401 Unauthorized</strong>: Falta autenticación (quién eres).</li><li><strong>403 Forbidden</strong>: Autenticado pero sin permisos suficientes (qué puedes hacer).</li><li><strong>404 Not Found / 409 Conflict / 422 Unprocessable</strong>: Recurso no hallado o choque de datos.</li><li><strong>429 Too Many Requests</strong>: Límite de peticiones alcanzado (Rate Limiting).</li><li><strong>500 Internal Error / 502 Bad Gateway / 503 Unavailable</strong>: Falla en el servidor o servicios upstream.</li></ul>",
+    "resumen_practico": "Distinguir entre 401 (no autenticado) y 403 (no autorizado) es vital para la seguridad. Siempre retorna el código HTTP semántico en tus respuestas API y middleware.",
+    "en_tu_stack": "Next.js NextResponse.json({ error }, { status: 401 })",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Manejo semántico de códigos HTTP en Next.js",
+      "codigo": "import { NextResponse } from 'next/server';\n\nexport async function GET(request: Request) {\n  const session = await getSession(request);\n  \n  if (!session) {\n    // 401: No autenticado\n    return NextResponse.json({ error: 'Debes iniciar sesión' }, { status: 401 });\n  }\n  \n  if (session.role !== 'admin') {\n    // 403: Autenticado pero sin privilegios\n    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });\n  }\n  \n  return NextResponse.json({ data: 'Reporte confidencial' }, { status: 200 });\n}"
+    },
+    "tags": ["http", "seguridad", "api", "rest", "errores"],
+    "relacionados": ["http-methods", "headers", "rate-limiting"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cuándo usar 401 vs 403 vs 422 en Next.js?",
+      "prompt_completo": "Explica la diferencia práctica entre devolver 400, 401, 403 y 422 en una API REST construida con Next.js 16 y da ejemplos de respuestas JSON canónicas para cada caso."
+    }
+  },
+  {
+    "id": "headers",
+    "nombre": "Headers HTTP (Cabeceras)",
+    "capa": "capa-0",
+    "capaNumero": 0,
+    "capaNombre": "El Contrato Base (HTTP y la Web)",
+    "descripcion_corta": "Metadatos esenciales: Content-Type, Authorization, Cookie, Cache-Control y Security Headers.",
+    "explicacion": "<p>Las <strong>cabeceras HTTP</strong> permiten que cliente y servidor compartan información de contexto sobre la transacción.</p><ul><li><strong>Content-Type</strong>: Declara el formato del cuerpo (ej. <code>application/json</code>).</li><li><strong>Authorization</strong>: Transporta credenciales (ej. <code>Bearer &lt;token_jwt&gt;</code>).</li><li><strong>Cache-Control</strong>: Define directivas de almacenamiento en CDN y navegador (ej. <code>s-maxage=3600, stale-while-revalidate</code>).</li><li><strong>Content-Security-Policy (CSP)</strong>: Previene ataques XSS restringiendo los orígenes de scripts permitidos.</li></ul>",
+    "resumen_practico": "El header `Authorization: Bearer <token>` es clave para JWTs sin cookies, mientras que cabeceras de seguridad como CSP y HSTS se configuran globalmente en `next.config.ts` o en `middleware.ts`.",
+    "en_tu_stack": "Next.js headers() asíncrono y middleware",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Lectura e inyección de Headers en Next.js 16",
+      "codigo": "import { headers } from 'next/headers';\nimport { NextResponse } from 'next/server';\n\n// En Server Component o Route Handler (Next 16 asíncrono)\nexport async function GET() {\n  const headersList = await headers();\n  const authorization = headersList.get('authorization');\n  const userAgent = headersList.get('user-agent');\n\n  const response = NextResponse.json({ status: 'ok', userAgent });\n  response.headers.set('X-Custom-Engine', 'Next.js 16 Turbopack');\n  return response;\n}"
+    },
+    "tags": ["http", "headers", "seguridad", "jwt", "nextjs16"],
+    "relacionados": ["cookies", "cors", "jwt"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar Content Security Policy (CSP) seguro en Next.js?",
+      "prompt_completo": "Escribe un middleware de Next.js 16 que genere nonces criptográficos dinámicos para Content Security Policy (CSP) protegiendo la aplicación contra inyecciones XSS en Server Components."
+    }
+  },
+  {
+    "id": "cookies",
+    "nombre": "Cookies & Sesiones Seguras",
+    "capa": "capa-0",
+    "capaNumero": 0,
+    "capaNombre": "El Contrato Base (HTTP y la Web)",
+    "descripcion_corta": "Datos persistidos en el cliente con flags HttpOnly, Secure y SameSite para sesiones blindadas.",
+    "explicacion": "<p>Las cookies son pequeños fragmentos de datos que el servidor instruye al navegador almacenar y enviar automáticamente en cada request hacia el mismo dominio.</p><p>Para proteger sesiones de usuario contra robo de credenciales:</p><ul><li><strong>HttpOnly</strong>: Impide que JavaScript (XSS) lea la cookie vía <code>document.cookie</code>.</li><li><strong>Secure</strong>: Exige transmisión exclusivamente cifrada por HTTPS.</li><li><strong>SameSite=Strict / Lax</strong>: Mitiga ataques CSRF bloqueando el envío cruzado entre dominios.</li></ul>",
+    "resumen_practico": "En Next.js, las cookies HTTP-only son el estándar de oro para almacenar Refresh Tokens y Session IDs, gestionadas mediante `await cookies()` de `next/headers`.",
+    "en_tu_stack": "next/headers cookies() + Auth / Better-Auth / NextAuth",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Gestión de Cookies Seguras en Next.js 16",
+      "codigo": "import { cookies } from 'next/headers';\n\nexport async function setAuthSession(token: string) {\n  const cookieStore = await cookies();\n  \n  cookieStore.set('session_token', token, {\n    httpOnly: true,\n    secure: process.env.NODE_ENV === 'production',\n    sameSite: 'lax',\n    path: '/',\n    maxAge: 60 * 60 * 24 * 7, // 7 días\n  });\n}\n\nexport async function getAuthSession() {\n  const cookieStore = await cookies();\n  return cookieStore.get('session_token')?.value;\n}"
+    },
+    "tags": ["http", "cookies", "seguridad", "sesiones", "auth"],
+    "relacionados": ["jwt", "csrf", "headers", "broken-auth"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo gestionar refresh tokens rotativos en cookies HttpOnly?",
+      "prompt_completo": "Explica la arquitectura de autenticación con Refresh Token rotativo en cookies HttpOnly y Access Token efímero en memoria usando Next.js 16 y MongoDB."
+    }
+  },
+  {
+    "id": "cors",
+    "nombre": "CORS (Cross-Origin Resource Sharing)",
+    "capa": "capa-0",
+    "capaNumero": 0,
+    "capaNombre": "El Contrato Base (HTTP y la Web)",
+    "descripcion_corta": "Mecanismo de seguridad del navegador que restringe peticiones entre diferentes orígenes (dominios/puertos).",
+    "explicacion": "<p><strong>CORS</strong> es una política de seguridad aplicada por los navegadores para prevenir que un script de un origen no autorizado acceda a recursos de otro dominio.</p><p>Cuando un frontend (ej. <code>https://app.tudominio.com</code>) hace una petición a una API (ej. <code>https://api.tudominio.com</code>), el navegador envía una petición de sondeo <strong>Preflight (OPTIONS)</strong> consultando las cabeceras permitidas.</p>",
+    "resumen_practico": "Si separas tu backend y frontend en subdominios distintos, debes configurar CORS en `middleware.ts` o en las cabeceras de respuesta en Next.js.",
+    "en_tu_stack": "Next.js middleware.ts o next.config.ts headers",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Configuración de CORS en middleware.ts",
+      "codigo": "import { NextResponse } from 'next/server';\nimport type { NextRequest } from 'next/server';\n\nconst ALLOWED_ORIGINS = ['https://app.midominio.com', 'http://localhost:3000'];\n\nexport function middleware(request: NextRequest) {\n  const origin = request.headers.get('origin') ?? '';\n  const isAllowed = ALLOWED_ORIGINS.includes(origin);\n\n  // Manejar preflight OPTIONS\n  if (request.method === 'OPTIONS') {\n    const response = new NextResponse(null, { status: 204 });\n    if (isAllowed) {\n      response.headers.set('Access-Control-Allow-Origin', origin);\n      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');\n      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');\n      response.headers.set('Access-Control-Allow-Credentials', 'true');\n    }\n    return response;\n  }\n\n  const response = NextResponse.next();\n  if (isAllowed) {\n    response.headers.set('Access-Control-Allow-Origin', origin);\n    response.headers.set('Access-Control-Allow-Credentials', 'true');\n  }\n  return response;\n}"
+    },
+    "tags": ["http", "cors", "seguridad", "middleware", "api"],
+    "relacionados": ["headers", "middleware", "http-methods"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo resolver errores de CORS entre Next.js y un backend externo?",
+      "prompt_completo": "Explica cómo resolver problemas de CORS cuando un cliente frontend hace peticiones con credenciales a un backend en Next.js y cómo funciona la petición de preflight OPTIONS."
+    }
+  },
+  {
+    "id": "csr",
+    "nombre": "CSR (Client-Side Rendering)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Renderizado total en el cliente con JavaScript: ideal para paneles privados y modales.",
+    "explicacion": "<p>En <strong>CSR</strong>, el servidor entrega un cascarón HTML mínimo y un paquete JavaScript. El motor del navegador ejecuta el código y ensambla la interfaz de usuario en el cliente.</p><p><strong>Cuándo usarlo:</strong> Dashboards autenticados, editores interactivos, herramientas internas donde el SEO no es un factor y se requiere máxima reactividad de estado local.</p>",
+    "resumen_practico": "En Next.js App Router, marcas estos componentes con la directiva `\"use client\"` en la primera línea del archivo.",
+    "en_tu_stack": "Componentes \"use client\" con React 19 Hooks",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Componente Interactivo Cliente (\"use client\")",
+      "codigo": "'use client';\n\nimport { useState, useTransition } from 'react';\n\nexport default function CounterInteractive() {\n  const [count, setCount] = useState(0);\n  const [isPending, startTransition] = useTransition();\n\n  const handleIncrement = () => {\n    startTransition(() => {\n      setCount(prev => prev + 1);\n    });\n  };\n\n  return (\n    <button\n      onClick={handleIncrement}\n      className=\"px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg\"\n      disabled={isPending}\n    >\n      Clics en el cliente: {count}\n    </button>\n  );\n}"
+    },
+    "tags": ["frontend", "react", "csr", "renderizado", "use-client"],
+    "relacionados": ["ssr", "ssg", "isr", "streaming-ssr"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cuándo debo usar 'use client' en Next.js y cuándo evitarlo?",
+      "prompt_completo": "Explica la frontera entre Server Components y Client Components en Next.js 16: dónde colocar la directiva 'use client' para minimizar el tamaño del bundle JS en el cliente."
+    }
+  },
+  {
+    "id": "ssr",
+    "nombre": "SSR (Server-Side Rendering)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Generación dinámica de HTML completo en cada petición en el servidor para SEO perfecto.",
+    "explicacion": "<p>En <strong>SSR</strong>, el servidor genera el HTML completo con datos actualizados en cada petición entrante y lo envía al navegador.</p><p><strong>Cuándo usarlo:</strong> Páginas públicas que requieren indexación SEO inmediata y datos personalizados que cambian en tiempo real (ej. feeds de usuario, resultados de búsqueda con filtros dinámicos).</p>",
+    "resumen_practico": "En Next.js 16, cualquier Server Component que lea cookies, headers o parámetros dinámicos se ejecuta en SSR.",
+    "en_tu_stack": "React Server Components (RSC) en Next.js 16",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Server Component con Fetch Dinámico (Next.js 16)",
+      "codigo": "export const dynamic = 'force-dynamic';\n\ninterface PageProps {\n  searchParams: Promise<{ query?: string }>;\n}\n\nexport default async function SearchPage({ searchParams }: PageProps) {\n  const { query } = await searchParams;\n  const res = await fetch(`https://api.ejemplo.com/search?q=${query || ''}`, {\n    cache: 'no-store'\n  });\n  const results = await res.json();\n\n  return (\n    <div>\n      <h1>Resultados para: {query}</h1>\n      <ul>\n        {results.map((item: any) => (\n          <li key={item.id}>{item.title}</li>\n        ))}\n      </ul>\n    </div>\n  );\n}"
+    },
+    "tags": ["frontend", "nextjs16", "ssr", "rsc", "seo"],
+    "relacionados": ["csr", "ssg", "streaming-ssr"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo optimizar el TTFB en páginas SSR en Next.js?",
+      "prompt_completo": "Explica cómo reducir el TTFB (Time To First Byte) en páginas Server-Side Rendered en Next.js combinando Suspense, Streaming y consultas concurrentes a MongoDB."
+    }
+  },
+  {
+    "id": "ssg",
+    "nombre": "SSG (Static Site Generation)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Pre-renderizado estático durante el build (npm run build) servido instantáneamente desde CDN.",
+    "explicacion": "<p><strong>SSG</strong> compila todo el HTML, CSS y assets durante el tiempo de construcción. Los archivos se distribuyen en CDN globales con latencia de milisegundos y costo computacional nulo por visita.</p><p><strong>Cuándo usarlo:</strong> Landing pages, blogs, documentación, términos legales y catálogos estáticos.</p>",
+    "resumen_practico": "En Next.js, se activa mediante `generateStaticParams()` para rutas dinámicas y componentes sin dependencias de petición en tiempo de ejecución.",
+    "en_tu_stack": "generateStaticParams() en app/conceptos/[slug]/page.tsx",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Rutas estáticas pre-generadas (generateStaticParams)",
+      "codigo": "import { getAllConceptos, getConceptoBySlug } from '@/lib/conceptos';\n\n// Genera todas las páginas HTML en tiempo de compilación\nexport async function generateStaticParams() {\n  const conceptos = await getAllConceptos();\n  return conceptos.map((c) => ({ slug: c.id }));\n}\n\nexport default async function ConceptoPage({ params }: { params: Promise<{ slug: string }> }) {\n  const { slug } = await params;\n  const concepto = await getConceptoBySlug(slug);\n  return <article><h1>{concepto?.nombre}</h1></article>;\n}"
+    },
+    "tags": ["frontend", "ssg", "rendimiento", "cdn", "nextjs16"],
+    "relacionados": ["isr", "ssr", "csr"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cuál es la diferencia entre SSG e ISR en Next.js 16?",
+      "prompt_completo": "Compara Static Site Generation (SSG) e Incremental Static Regeneration (ISR) en Next.js 16 con ejemplos prácticos de cuándo elegir cada uno para optimizar velocidad y frescura de datos."
+    }
+  },
+  {
+    "id": "isr",
+    "nombre": "ISR (Incremental Static Regeneration)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Páginas estáticas que se regeneran en segundo plano al expirar un intervalo o bajo demanda.",
+    "explicacion": "<p><strong>ISR</strong> te permite conservar los beneficios de velocidad y costo del SSG mientras mantienes tus páginas actualizadas periódicamente sin necesidad de reconstruir todo el sitio web.</p><p>Cuando entra una petición y el tiempo `revalidate` ha expirado, Next.js sirve la versión estática existente mientras reconstruye la nueva versión en segundo plano de forma transparente.</p>",
+    "resumen_practico": "Ideal para catálogos de e-commerce o enciclopedias con miles de páginas que cambian esporádicamente: usa `revalidateTag()` o `revalidatePath()` para invalidación bajo demanda.",
+    "en_tu_stack": "fetch(url, { next: { revalidate: 60, tags: ['articulos'] } })",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "ISR con tiempo de revalidación y tags",
+      "codigo": "// Revalidar automáticamente cada 300 segundos (5 minutos)\nexport const revalidate = 300;\n\nexport default async function CatalogoPage() {\n  const res = await fetch('https://api.midominio.com/productos', {\n    next: { tags: ['productos'] }\n  });\n  const productos = await res.json();\n\n  return (\n    <div>\n      <h2>Catálogo actualizado con ISR</h2>\n      <p>Generado a las: {new Date().toLocaleTimeString()}</p>\n    </div>\n  );\n}"
+    },
+    "tags": ["frontend", "isr", "caché", "rendimiento", "nextjs16"],
+    "relacionados": ["ssg", "ssr", "caching"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar revalidación bajo demanda (On-Demand ISR) con Server Actions?",
+      "prompt_completo": "Crea un ejemplo de On-Demand ISR en Next.js 16 usando revalidatePath y revalidateTag dentro de una Server Action al crear o actualizar un documento en MongoDB."
+    }
+  },
+  {
+    "id": "streaming-ssr",
+    "nombre": "Streaming SSR & React Suspense",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Envío progresivo de HTML en chunks desde el servidor para desbloquear la interfaz al instante.",
+    "explicacion": "<p>El <strong>Streaming SSR</strong> permite que el servidor envíe fragmentos de HTML al navegador a medida que se completan, sin esperar a que las consultas de datos más lentas finalicen.</p><p>React envuelve los componentes asíncronos en bloques <code>&lt;Suspense fallback={...}&gt;</code>, mostrando esqueletos inmediatos al usuario y transmitiendo los datos pesados en cuanto están listos.</p>",
+    "resumen_practico": "En Next.js App Router, puedes usar archivos `loading.tsx` automáticos a nivel de ruta o componentes `<Suspense>` granulares para métricas LCP y FID estelares.",
+    "en_tu_stack": "React 19 Suspense + Server Components asíncronos",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Streaming con React 19 Suspense en Next.js 16",
+      "codigo": "import { Suspense } from 'react';\n\nasync function GraficoVentasLento() {\n  // Consulta pesada a la base de datos\n  await new Promise((r) => setTimeout(r, 2000));\n  return <div className=\"p-4 bg-emerald-950/40 border border-emerald-500/30 rounded\">📊 Ventas calculadas</div>;\n}\n\nexport default function Dashboard() {\n  return (\n    <div className=\"space-y-6\">\n      <h1>Panel de Métricas (Renderizado Rápido)</h1>\n      \n      <Suspense fallback={<div className=\"animate-pulse p-4 bg-zinc-800 rounded\">Cargando gráfico...</div>}>\n        <GraficoVentasLento />\n      </Suspense>\n    </div>\n  );\n}"
+    },
+    "tags": ["frontend", "streaming", "suspense", "react19", "performance"],
+    "relacionados": ["ssr", "csr", "server-state"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo diseñar una arquitectura de Streaming SSR con Suspense para páginas con múltiples fuentes de datos?",
+      "prompt_completo": "Diseña una página de perfil en Next.js 16 que combine datos rápidos de usuario con feeds de actividad lentos usando Streaming SSR, Suspense y esqueletos UI para evitar bloqueos del navegador."
+    }
+  },
+  {
+    "id": "server-state",
+    "nombre": "Gestión del Estado del Servidor (Server State)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Datos asíncronos provenientes de APIs o bases de datos gestionados con caché, refetch y sincronización.",
+    "explicacion": "<p>El <strong>Server State</strong> no pertenece realmente al cliente; es una captura temporal de los datos almacenados en tu servidor o base de datos.</p><p>Características: asíncrono, puede desactualizarse rápidamente por acciones de otros usuarios y requiere estrategias de revalidación, mutaciones optimistas y control de concurrencia.</p>",
+    "resumen_practico": "En Next.js se maneja de forma nativa en Server Components con fetch/caching, o en el cliente mediante TanStack Query (React Query) y SWR.",
+    "en_tu_stack": "RSC nativo en Next.js + TanStack Query / SWR",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Server State en el Cliente con TanStack Query",
+      "codigo": "'use client';\n\nimport { useQuery } from '@tanstack/react-query';\n\nexport function UserProfile({ userId }: { userId: string }) {\n  const { data, isLoading, error } = useQuery({\n    queryKey: ['user', userId],\n    queryFn: async () => {\n      const res = await fetch(`/api/users/${userId}`);\n      if (!res.ok) throw new Error('Error al cargar');\n      return res.json();\n    },\n    staleTime: 1000 * 60 * 5, // 5 min de datos frescos\n  });\n\n  if (isLoading) return <div>Cargando perfil...</div>;\n  if (error) return <div>Error: {(error as Error).message}</div>;\n  return <h2>{data.name} ({data.email})</h2>;\n}"
+    },
+    "tags": ["frontend", "estado", "react-query", "swr", "caché"],
+    "relacionados": ["client-state", "global-state", "server-actions"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cuándo conviene usar TanStack Query frente al fetch nativo de Server Components?",
+      "prompt_completo": "Compara el uso de TanStack Query en Client Components vs el fetch nativo con Server Components en Next.js 16: analiza casos de uso como polling en tiempo real, mutaciones optimistas y paginación infinita."
+    }
+  },
+  {
+    "id": "client-state",
+    "nombre": "Gestión del Estado del Cliente (Client State)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Datos efímeros de la interfaz: modales abiertos, inputs, acordeones y temas visuales.",
+    "explicacion": "<p>El <strong>Client State</strong> representa datos que solo tienen sentido dentro del navegador del usuario actual y no necesitan persistir en la base de datos.</p><p>Ejemplos: si un menú desplegable está abierto, el texto temporal que el usuario escribe en un campo de búsqueda o la pestaña activa de una vista.</p>",
+    "resumen_practico": "Mantenlo lo más cercano posible al componente que lo necesita usando `useState` o Zustand para estados globales ligeros de interfaz.",
+    "en_tu_stack": "useState, useReducer, Zustand o Jotai",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Estado de UI con Zustand",
+      "codigo": "import { create } from 'zustand';\n\ninterface UIStore {\n  sidebarOpen: boolean;\n  toggleSidebar: () => void;\n  activeModal: string | null;\n  openModal: (id: string) => void;\n  closeModal: () => void;\n}\n\nexport const useUIStore = create<UIStore>((set) => ({\n  sidebarOpen: false,\n  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),\n  activeModal: null,\n  openModal: (id) => set({ activeModal: id }),\n  closeModal: () => set({ activeModal: null }),\n}));"
+    },
+    "tags": ["frontend", "estado", "zustand", "react", "ui"],
+    "relacionados": ["server-state", "global-state"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo estructurar Zustand en una aplicación Next.js 16 sin problemas de SSR?",
+      "prompt_completo": "Muestra cómo crear un store de Zustand compatible con Server-Side Rendering en Next.js 16 evitando problemas de hidratación y fugas de estado entre peticiones concurrentes."
+    }
+  },
+  {
+    "id": "server-actions",
+    "nombre": "Server Actions (React 19 & Next.js 16)",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "Funciones asíncronas de servidor invocables directamente desde componentes o formularios con validación segura.",
+    "explicacion": "<p>Las <strong>Server Actions</strong> eliminan la necesidad de escribir controladores de endpoints manuales para mutaciones de datos. Se definen con la directiva <code>\"use server\"</code> y se ejecutan exclusivamente en el entorno de servidor con cifrado de RPC automático.</p><p><strong>React 19</strong> añade soporte nativo con hooks como <code>useActionState</code> y <code>useOptimistic</code> para interfaces instantáneas y seguras.</p>",
+    "resumen_practico": "Siempre valida la entrada con Zod dentro de la Server Action y utiliza `revalidatePath` para refrescar la UI sin recargar la página.",
+    "en_tu_stack": "useActionState + useOptimistic + Zod + MongoDB",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Server Action con Zod y useActionState (Next.js 16)",
+      "codigo": "'use server';\n\nimport { z } from 'zod';\nimport { revalidatePath } from 'next/cache';\n\nconst UserSchema = z.object({\n  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),\n  email: z.string().email('Email inválido'),\n});\n\nexport async function createUserAction(prevState: any, formData: FormData) {\n  const parsed = UserSchema.safeParse({\n    name: formData.get('name'),\n    email: formData.get('email'),\n  });\n\n  if (!parsed.success) {\n    return { success: false, errors: parsed.error.flatten().fieldErrors };\n  }\n\n  // Guardar en MongoDB...\n  // await db.collection('users').insertOne(parsed.data);\n  \n  revalidatePath('/usuarios');\n  return { success: true, message: 'Usuario registrado exitosamente' };\n}"
+    },
+    "tags": ["frontend", "backend", "server-actions", "react19", "nextjs16", "zod"],
+    "relacionados": ["api-routes", "middleware", "csrf"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar mutaciones optimistas con Server Actions y useOptimistic en React 19?",
+      "prompt_completo": "Escribe un componente completo de lista de tareas usando Server Actions, useActionState y el hook useOptimistic de React 19 en Next.js 16 para que la UI se actualice al instante mientras se guarda en MongoDB."
+    }
+  },
+  {
+    "id": "hydration",
+    "nombre": "Hidratación e Hydration Mismatch",
+    "capa": "capa-1",
+    "capaNumero": 1,
+    "capaNombre": "Frontend (El Navegador como Plataforma)",
+    "descripcion_corta": "El proceso donde React vincula listeners al HTML del servidor y cómo prevenir discrepancias.",
+    "explicacion": "<p>La <strong>hidratación</strong> es el proceso en el que React en el navegador adopta el DOM estático generado por el servidor, adjunta los event listeners (clicks, inputs) y monta el estado reactivo.</p><p><strong>Hydration Mismatch</strong> ocurre cuando el HTML renderizado por el servidor difiere del primer render en el cliente (ej. `window.innerWidth`, fechas con zonas horarias locales, tokens en `localStorage`).</p>",
+    "resumen_practico": "Para evitar errores de hidratación, aplaza la renderización de datos dependientes del cliente a un `useEffect`, usa `suppressHydrationWarning` para atributos o monta un hook `useMounted()`.",
+    "en_tu_stack": "suppressHydrationWarning en <html> y Providers",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Patrón useIsMounted para evitar Hydration Mismatch",
+      "codigo": "'use client';\n\nimport { useState, useEffect } from 'react';\n\nexport function ClientOnlyTimestamp() {\n  const [mounted, setMounted] = useState(false);\n\n  useEffect(() => {\n    setMounted(true);\n  }, []);\n\n  if (!mounted) {\n    return <span className=\"text-zinc-500\">Cargando hora local...</span>;\n  }\n\n  return <span>Hora local: {new Date().toLocaleTimeString()}</span>;\n}"
+    },
+    "tags": ["frontend", "react", "hidratacion", "ssr", "bugs"],
+    "relacionados": ["ssr", "csr", "client-state"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo depurar y resolver errores de Hydration Mismatch en Next.js?",
+      "prompt_completo": "Enumera las 5 causas más comunes de errores de Hydration Mismatch en Next.js 16 y cómo prevenirlas limpiamente en componentes que manejan temas oscuros, fechas o datos del navegador."
+    }
+  },
+  {
+    "id": "api-routes",
+    "nombre": "API Routes / Route Handlers (Next.js 16)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Endpoints RESTful y webhooks en app/api/.../route.ts con tipado estricto y soporte Edge/Node.js.",
+    "explicacion": "<p>Los <strong>Route Handlers</strong> en Next.js App Router exponen endpoints HTTP estándar para consumir desde aplicaciones móviles, webhooks externos (ej. Stripe, GitHub) o integraciones de terceros.</p><p>Se definen creando un archivo <code>route.ts</code> dentro del directorio <code>app/api/</code> y exportando métodos nombrados (GET, POST, PUT, DELETE, PATCH).</p>",
+    "resumen_practico": "Úsalos cuando necesites endpoints públicos o webhooks; si la mutación está ligada directamente a tu UI de Next.js, prefiere Server Actions.",
+    "en_tu_stack": "app/api/.../route.ts con NextResponse y NextRequest",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Route Handler seguro con validación en Next.js 16",
+      "codigo": "import { NextRequest, NextResponse } from 'next/server';\n\nexport async function POST(req: NextRequest) {\n  try {\n    const body = await req.json();\n    \n    // Lógica de backend o webhook\n    return NextResponse.json({ success: true, processedAt: new Date() }, { status: 200 });\n  } catch (error) {\n    return NextResponse.json({ error: 'Payload JSON inválido' }, { status: 400 });\n  }\n}"
+    },
+    "tags": ["backend", "api", "rest", "webhooks", "nextjs16"],
+    "relacionados": ["server-actions", "middleware", "http-methods"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar webhooks seguros con validación de firmas criptográficas en Next.js?",
+      "prompt_completo": "Muestra cómo escribir un Route Handler en Next.js 16 para procesar webhooks de Stripe verificando la firma 'stripe-signature' con el payload crudo (raw body)."
+    }
+  },
+  {
+    "id": "middleware",
+    "nombre": "Middleware en el Edge (Next.js)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Intercepción ultrarrápida antes de que la petición llegue a páginas o APIs (Auth, Redirects, Headers).",
+    "explicacion": "<p>El archivo <code>middleware.ts</code> se ejecuta en el <strong>Edge Runtime</strong> antes de que cualquier request sea procesado por una página, Server Action o API Route.</p><p>Es el lugar idóneo para validación de sesiones, redirecciones de usuarios no autenticados, pruebas A/B, geolocalización e inyección de cabeceras de seguridad y CORS.</p>",
+    "resumen_practico": "Usa `matcher` para delimitar exactamente qué rutas debe interceptar y evita consultas pesadas a bases de datos en el middleware.",
+    "en_tu_stack": "middleware.ts en la raíz del proyecto",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "middleware.ts de protección de rutas y auth",
+      "codigo": "import { NextResponse } from 'next/server';\nimport type { NextRequest } from 'next/server';\n\nexport function middleware(request: NextRequest) {\n  const sessionToken = request.cookies.get('session_token')?.value;\n  const { pathname } = request.nextUrl;\n\n  // Proteger rutas /dashboard y /admin\n  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {\n    if (!sessionToken) {\n      const loginUrl = new URL('/login', request.url);\n      loginUrl.searchParams.set('redirect', pathname);\n      return NextResponse.redirect(loginUrl);\n    }\n  }\n\n  return NextResponse.next();\n}\n\nexport const config = {\n  matcher: ['/dashboard/:path*', '/admin/:path*'],\n};"
+    },
+    "tags": ["backend", "middleware", "edge", "auth", "seguridad"],
+    "relacionados": ["cookies", "cors", "jwt", "rate-limiting"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo crear un middleware en Next.js con verificación JWT en el Edge?",
+      "prompt_completo": "Escribe un middleware.ts completo en Next.js 16 que verifique un JSON Web Token (JWT) usando la librería 'jose' compatible con el Edge Runtime y redirija a login si el token ha expirado."
+    }
+  },
+  {
+    "id": "orm",
+    "nombre": "Driver vs ODM (Mongoose) vs ORM (Prisma/Drizzle)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Comparativa de capas de acceso a datos: control crudo vs esquemas vs seguridad de tipos TypeScript.",
+    "explicacion": "<p>Al conectar tu backend con la base de datos, existen diferentes niveles de abstracción:</p><ul><li><strong>Driver nativo (ej. <code>mongodb</code>)</strong>: Conexión cruda, máximo rendimiento y control absoluto.</li><li><strong>ODM (Object Document Mapper, ej. Mongoose)</strong>: Añade validación de esquemas, hooks (pre-save) y métodos a nivel de documento MongoDB.</li><li><strong>ORM SQL (Prisma / Drizzle)</strong>: Mapea tablas SQL a modelos con autocompletado estricto en TypeScript y gestión de migraciones.</li><li><strong>Query Builder (Knex.js)</strong>: Construcción modular de SQL programático sin modelos pesados.</li></ul>",
+    "resumen_practico": "En el stack Next.js + MongoDB, puedes usar el driver oficial para máxima velocidad con `clientPromise` o Mongoose para reglas de validación complejas.",
+    "en_tu_stack": "Mongoose ODM / MongoDB Native Driver / Drizzle ORM",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Driver Nativo vs Mongoose ODM",
+      "codigo": "// 1. Driver nativo MongoDB (clientPromise)\nimport clientPromise from '@/lib/mongodb';\n\nexport async function getNativeUsers() {\n  const client = await clientPromise;\n  return client.db('myapp').collection('users').find({ active: true }).toArray();\n}\n\n// 2. Mongoose ODM con Schema tipado\nimport mongoose, { Schema, model, models } from 'mongoose';\n\nconst UserSchema = new Schema({\n  email: { type: String, required: true, unique: true },\n  role: { type: String, enum: ['user', 'admin'], default: 'user' },\n}, { timestamps: true });\n\nexport const User = models.User || model('User', UserSchema);"
+    },
+    "tags": ["backend", "database", "orm", "mongoose", "prisma", "drizzle"],
+    "relacionados": ["mongodb", "postgresql", "sql-vs-nosql"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cuándo elegir Mongoose vs Prisma vs Drizzle en Next.js?",
+      "prompt_completo": "Haz una comparativa técnica profunda entre Mongoose (MongoDB), Prisma ORM y Drizzle ORM en términos de overhead serverless en Vercel, type-safety y soporte para Edge Runtime."
+    }
+  },
+  {
+    "id": "sql-injection",
+    "nombre": "Inyección SQL y NoSQL",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Ataques de manipulación de consultas y cómo blindar MongoDB y bases relacionales con parametrización.",
+    "explicacion": "<p>Ocurre cuando datos no confiables introducidos por un usuario se concatenan directamente en la consulta a la base de datos, alterando su lógica intencionada.</p><p>En MongoDB (NoSQL Injection), un atacante puede enviar objetos como <code>{\"$gt\": \"\"}</code> en lugar de cadenas, saltándose verificaciones de contraseña.</p><p><strong>Defensa:</strong> Parametrizar siempre las consultas, validar tipos con Zod y nunca concatenar strings crudos.</p>",
+    "resumen_practico": "Validar la forma exacta de los inputs con esquemas Zod antes de pasarlos a consultas de MongoDB o SQL elimina el 99% de las inyecciones.",
+    "en_tu_stack": "Zod Schema Parsing + Mongoose Casting",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Prevención de Inyección NoSQL con Zod",
+      "codigo": "import { z } from 'zod';\nimport { User } from '@/models/User';\n\nconst LoginInputSchema = z.object({\n  email: z.string().email(),\n  password: z.string().min(6), // Garantiza que sea string, no objeto con $ne o $gt\n});\n\nexport async function loginUser(payload: unknown) {\n  const parsed = LoginInputSchema.safeParse(payload);\n  if (!parsed.success) throw new Error('Datos inválidos');\n\n  // Seguro: parsed.data.email es forzosamente un string limpio\n  const user = await User.findOne({ email: parsed.data.email });\n  return user;\n}"
+    },
+    "tags": ["backend", "seguridad", "owasp", "sql", "nosql"],
+    "relacionados": ["xss", "csrf", "broken-auth"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo ocurre un ataque de NoSQL Injection en MongoDB y cómo evitarlo?",
+      "prompt_completo": "Explica con un ejemplo de código vulnerable cómo un atacante puede autenticarse sin contraseña en MongoDB mediante inyección de operadores ($gt, $ne) y cómo blindarlo con Zod en Next.js."
+    }
+  },
+  {
+    "id": "xss",
+    "nombre": "XSS (Cross-Site Scripting)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Inyección de scripts maliciosos en el navegador del usuario y su neutralización en React/Next.js.",
+    "explicacion": "<p>En <strong>XSS</strong>, el atacante logra inyectar código JavaScript que se ejecuta en el navegador de otros usuarios, permitiendo robar tokens de sesión, registrar pulsaciones de teclas o secuestrar cuentas.</p><p><strong>Defensa:</strong> React escapa por defecto todas las variables en JSX. Evita usar <code>dangerouslySetInnerHTML</code> a menos que sanitices con DOMPurify e implementa cabeceras CSP estrictas.</p>",
+    "resumen_practico": "Usa cookies HttpOnly para sesiones (así JavaScript malicioso no puede leerlas) y nunca renderices HTML de usuarios sin sanitizar.",
+    "en_tu_stack": "JSX Auto-Escaping + DOMPurify + CSP Headers",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Renderizado Seguro vs Peligroso en React",
+      "codigo": "// ✅ 1. SEGURO: React escapa automáticamente caracteres especiales\nexport function Comment({ text }: { text: string }) {\n  return <p>{text}</p>;\n}\n\n// ❌ 2. PELIGROSO: Vía libre a scripts inyectados\n// <div dangerouslySetInnerHTML={{ __html: userInput }} />\n\n// ✅ 3. SEGURO SI REQUIERES HTML RICO (con sanitización)\nimport DOMPurify from 'isomorphic-dompurify';\n\nexport function SafeRichText({ html }: { html: string }) {\n  const cleanHtml = DOMPurify.sanitize(html);\n  return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;\n}"
+    },
+    "tags": ["backend", "frontend", "seguridad", "owasp", "xss"],
+    "relacionados": ["csrf", "cookies", "sql-injection"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo sanitizar HTML generado por usuarios en Next.js Server Components?",
+      "prompt_completo": "Muestra cómo sanitizar contenido Markdown o HTML de usuarios en Next.js 16 de forma segura antes de renderizarlo o guardarlo en la base de datos."
+    }
+  },
+  {
+    "id": "csrf",
+    "nombre": "CSRF (Cross-Site Request Forgery)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Peticiones no deseadas forzadas por sitios maliciosos usando las cookies activas de la víctima.",
+    "explicacion": "<p>En <strong>CSRF</strong>, un sitio web atacante engaña al navegador de una víctima autenticada para que ejecute una petición HTTP no deseada (ej. transferir dinero o cambiar email) en tu aplicación aprovechando que las cookies se envían automáticamente.</p><p><strong>Defensa moderna:</strong> Cookies con flag <code>SameSite=Lax</code> o <code>Strict</code>, tokens anti-CSRF criptográficos y uso de Server Actions en Next.js (que tienen protección CSRF nativa basada en cabeceras de origen).</p>",
+    "resumen_practico": "Las Server Actions de Next.js verifican automáticamente el header `Origin` contra `Host`, mitigando CSRF de forma transparente.",
+    "en_tu_stack": "Next.js Server Actions CSRF + SameSite Cookies",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Protección CSRF nativa en Server Actions",
+      "codigo": "'use server';\n\n// Las Server Actions de Next.js incluyen protección CSRF automática:\n// Next.js valida que el header 'Origin' coincida con el Host de la aplicación\nexport async function updateEmailAction(formData: FormData) {\n  const newEmail = formData.get('email') as string;\n  \n  // La petición solo se procesa si proviene legítimamente de tu frontend\n  return { success: true, email: newEmail };\n}"
+    },
+    "tags": ["backend", "seguridad", "owasp", "csrf", "server-actions"],
+    "relacionados": ["cookies", "xss", "broken-auth"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo protege Next.js contra ataques CSRF en Server Actions y API Routes?",
+      "prompt_completo": "Explica los mecanismos internos de protección anti-CSRF en Next.js 16 y cómo proteger endpoints tradicionales de API Routes contra peticiones cruzadas no autorizadas."
+    }
+  },
+  {
+    "id": "jwt",
+    "nombre": "JWT (JSON Web Tokens) & Sesiones",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Tokens firmados criptográficamente para autenticación sin estado (Stateless) vs sesiones en DB.",
+    "explicacion": "<p>Un <strong>JWT</strong> es un estándar abierto (RFC 7519) compuesto por tres partes separadas por puntos: <code>Header.Payload.Signature</code>.</p><p>Permite autenticación sin estado: el servidor verifica la firma con una clave secreta sin necesidad de consultar la base de datos en cada petición.</p><p><strong>Regla de oro:</strong> Nunca almacenes datos confidenciales (contraseñas) en el payload porque es legible mediante Base64Decode. Mantén tokens de acceso con corta duración (ej. 15 min) y refresca con Refresh Tokens en cookies HttpOnly.</p>",
+    "resumen_practico": "Nunca guardes JWTs en `localStorage` (vulnerable a XSS). Usa cookies HttpOnly o Better-Auth / Auth.js.",
+    "en_tu_stack": "jose / jsonwebtoken / NextAuth / Better-Auth",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Firma y Verificación JWT con 'jose' (Compatible con Edge)",
+      "codigo": "import { SignJWT, jwtVerify } from 'jose';\n\nconst SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'secret-key-min-32-chars');\n\n// Generar Token\nexport async function createToken(userId: string) {\n  return new SignJWT({ sub: userId, role: 'user' })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt()\n    .setExpirationTime('15m')\n    .sign(SECRET_KEY);\n}\n\n// Verificar Token\nexport async function verifyToken(token: string) {\n  const { payload } = await jwtVerify(token, SECRET_KEY);\n  return payload;\n}"
+    },
+    "tags": ["backend", "seguridad", "auth", "jwt", "tokens"],
+    "relacionados": ["cookies", "broken-auth", "middleware"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar una estrategia de autenticación con JWTs efímeros y refresh tokens en Next.js?",
+      "prompt_completo": "Diseña una arquitectura de autenticación segura en Next.js 16 que utilice Access Tokens JWT de 15 minutos en memoria y Refresh Tokens en cookies HttpOnly rotativas con almacenamiento en MongoDB."
+    }
+  },
+  {
+    "id": "rate-limiting",
+    "nombre": "Rate Limiting & Protección Anti-Abuso",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Límite de solicitudes por IP/usuario con Redis (Upstash) para frenar ataques de fuerza bruta y DDoS.",
+    "explicacion": "<p>El <strong>Rate Limiting</strong> restringe el número de peticiones que un cliente puede enviar a tu servidor en un período determinado (ej. máximo 5 intentos de login por minuto por IP).</p><p>Protege tus endpoints críticos contra ataques de fuerza bruta, raspado masivo (scraping) y consumo excesivo de costes en APIs serverless.</p>",
+    "resumen_practico": "En entornos Serverless/Edge de Next.js, utiliza `@upstash/ratelimit` con Redis serverless mediante HTTP para latencia mínima sin agotar conexiones TCP.",
+    "en_tu_stack": "@upstash/ratelimit + @upstash/redis en middleware.ts",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Rate Limiting en middleware.ts con Upstash",
+      "codigo": "import { NextResponse } from 'next/server';\nimport type { NextRequest } from 'next/server';\nimport { Ratelimit } from '@upstash/ratelimit';\nimport { Redis } from '@upstash/redis';\n\nconst ratelimit = new Ratelimit({\n  redis: Redis.fromEnv(),\n  limiter: Ratelimit.slidingWindow(10, '10 s'), // 10 peticiones cada 10 segundos\n});\n\nexport async function middleware(request: NextRequest) {\n  const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? '127.0.0.1';\n  const { success, limit, remaining } = await ratelimit.limit(ip);\n\n  if (!success) {\n    return new NextResponse('Demasiadas solicitudes. Intenta más tarde.', {\n      status: 429,\n      headers: { 'Retry-After': '10' },\n    });\n  }\n\n  const response = NextResponse.next();\n  response.headers.set('X-RateLimit-Limit', limit.toString());\n  response.headers.set('X-RateLimit-Remaining', remaining.toString());\n  return response;\n}"
+    },
+    "tags": ["backend", "seguridad", "redis", "rate-limiting", "upstash"],
+    "relacionados": ["middleware", "broken-auth", "caching"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar Rate Limiting granular en Next.js para rutas de login y APIs públicas?",
+      "prompt_completo": "Crea una estrategia de Rate Limiting con Upstash Redis en Next.js 16 con diferentes límites para endpoints públicos (ej. 100 req/min) y endpoints de autenticación (/api/auth/login, 5 req/min)."
+    }
+  },
+  {
+    "id": "broken-auth",
+    "nombre": "Gestión Segura de Autenticación (Broken Auth)",
+    "capa": "capa-2",
+    "capaNumero": 2,
+    "capaNombre": "Backend (Cerebro y Lógica de Negocio)",
+    "descripcion_corta": "Buenas prácticas OWASP: hashing Argon2/Bcrypt, expiración de sesiones y protección de credenciales.",
+    "explicacion": "<p><strong>Broken Authentication</strong> engloba fallas de diseño en el manejo de identidades: contraseñas débiles o almacenadas en texto plano, tokens predecibles, falta de rotación de identificadores de sesión o fijación de sesión.</p><p><strong>Defensas esenciales:</strong> Utilizar algoritmos robustos de hash (Argon2id o Bcrypt con salt adecuado), forzar autenticación multifactor (MFA), invalidar sesiones al cambiar credenciales y bloquear cuentas tras múltiples intentos fallidos.</p>",
+    "resumen_practico": "Nunca implementes criptografía ni hashing manual; usa librerías probadas como `bcrypt` / `argon2` y librerías de auth maduras.",
+    "en_tu_stack": "bcryptjs / argon2 + MongoDB User Schema",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Hashing seguro de contraseñas con bcryptjs",
+      "codigo": "import bcrypt from 'bcryptjs';\n\n// 1. Hash durante el registro\nexport async function hashPassword(plainText: string): Promise<string> {\n  const salt = await bcrypt.genSalt(12); // Cost factor adecuado\n  return bcrypt.hash(plainText, salt);\n}\n\n// 2. Verificación durante el login\nexport async function verifyPassword(plainText: string, hashed: string): Promise<boolean> {\n  return bcrypt.compare(plainText, hashed);\n}"
+    },
+    "tags": ["backend", "seguridad", "owasp", "auth", "bcrypt"],
+    "relacionados": ["jwt", "cookies", "rate-limiting"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo estructurar un sistema de autenticación seguro en Next.js sin vulnerabilidades OWASP?",
+      "prompt_completo": "Detalla las medidas de seguridad necesarias para construir un flujo de login y registro en Next.js 16 + MongoDB cumpliendo con OWASP Top 10 (hashing, rate limiting, cookies seguras, validación)."
+    }
+  },
+  {
+    "id": "sql-vs-nosql",
+    "nombre": "Modelado de Datos: SQL vs NoSQL",
+    "capa": "capa-3",
+    "capaNumero": 3,
+    "capaNombre": "Bases de Datos (El Arte de Persistir)",
+    "descripcion_corta": "Tablas relacionales y transacciones ACID vs documentos BSON flexibles y escalabilidad horizontal.",
+    "explicacion": "<p>La elección entre bases de datos SQL y NoSQL define la arquitectura de datos de tu aplicación:</p><ul><li><strong>SQL (PostgreSQL, Turso/libSQL)</strong>: Esquema rígido, tablas con llaves foráneas, integridad referencial estricta y transacciones complejas mediante <code>JOIN</code>s.</li><li><strong>NoSQL (MongoDB, DynamoDB)</strong>: Esquema flexible en documentos JSON/BSON, ideal para estructuras jerárquicas y datos embebidos, alta velocidad de lectura desnormalizada.</li></ul>",
+    "resumen_practico": "En MongoDB, embebe subdocumentos si se consultan siempre juntos (ej. items de una orden); usa referencias si los datos crecen sin límite (ej. comentarios de un post).",
+    "en_tu_stack": "MongoDB Atlas vs PostgreSQL / Turso",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Modelado NoSQL (Embebido vs Referenciado)",
+      "codigo": "// 1. Documento Embebido (1:Pocos) - Ideal para MongoDB\nconst orderWithEmbeddedItems = {\n  _id: 'order_123',\n  userId: 'user_456',\n  items: [\n    { productId: 'prod_1', name: 'Teclado Mecánico', price: 99, qty: 1 },\n    { productId: 'prod_2', name: 'Mouse Wireless', price: 49, qty: 2 }\n  ],\n  total: 197,\n  createdAt: new Date()\n};\n\n// 2. Documento Referenciado (1:Muchos) - Cuando crece indefinidamente\nconst postDocument = {\n  _id: 'post_789',\n  title: 'Guía de Next.js 16',\n  authorId: 'user_456',\n  // Los comentarios se guardan en una colección separada 'comments' con postId\n};"
+    },
+    "tags": ["database", "sql", "nosql", "mongodb", "modelado"],
+    "relacionados": ["mongodb", "postgresql", "orm"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cuándo usar documentos embebidos vs referencias en MongoDB?",
+      "prompt_completo": "Explica con ejemplos prácticos de e-commerce cuándo conviene embeber datos dentro de un documento en MongoDB y cuándo conviene normalizar y usar referencias con ObjectId."
+    }
+  },
+  {
+    "id": "mongodb",
+    "nombre": "MongoDB Avanzado & Aggregation Pipelines",
+    "capa": "capa-3",
+    "capaNumero": 3,
+    "capaNombre": "Bases de Datos (El Arte de Persistir)",
+    "descripcion_corta": "Pipelines de agregación ($match, $group, $lookup), índices compuestos y transacciones multi-documento.",
+    "explicacion": "<p><strong>MongoDB</strong> es una base de datos NoSQL documental de alto rendimiento. El <strong>Aggregation Framework</strong> es su motor de procesamiento de datos por etapas en serie (pipes).</p><p>Etapas clave:</p><ul><li><code>$match</code>: Filtra documentos (equivalente a WHERE).</li><li><code>$group</code>: Agrupa y calcula totales o promedios (GROUP BY).</li><li><code>$lookup</code>: Une datos con otra colección (LEFT OUTER JOIN).</li><li><code>$sort / $project</code>: Ordena y modela la forma final de salida.</li></ul>",
+    "resumen_practico": "Crea siempre índices en los campos que uses dentro de `$match` y `$sort` para evitar escaneos de colección completos (COLLSCAN).",
+    "en_tu_stack": "MongoDB Node Driver + Mongoose Pipelines",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Pipeline de Agregación para Métricas en Next.js",
+      "codigo": "import clientPromise from '@/lib/mongodb';\n\nexport async function getSalesAnalytics() {\n  const client = await clientPromise;\n  const db = client.db('tienda');\n\n  const pipeline = [\n    // 1. Filtrar órdenes pagadas del último mes\n    { $match: { status: 'PAID', createdAt: { $gte: new Date(Date.now() - 30 * 86400000) } } },\n    // 2. Desglosar productos individuales\n    { $unwind: '$items' },\n    // 3. Agrupar por categoría de producto y sumar ventas\n    {\n      $group: {\n        _id: '$items.category',\n        totalRevenue: { $sum: { $multiply: ['$items.price', '$items.qty'] } },\n        unitsSold: { $sum: '$items.qty' }\n      }\n    },\n    // 4. Ordenar por mayor facturación\n    { $sort: { totalRevenue: -1 } }\n  ];\n\n  return db.collection('orders').aggregate(pipeline).toArray();\n}"
+    },
+    "tags": ["database", "mongodb", "aggregation", "nosql", "analytics"],
+    "relacionados": ["sql-vs-nosql", "postgresql", "caching"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo construir un pipeline de agregación complejo en MongoDB para un dashboard?",
+      "prompt_completo": "Escribe un pipeline de agregación en MongoDB usando $lookup para unir colecciones de usuarios y órdenes, calculando el gasto total por usuario y filtrando usuarios inactivos."
+    }
+  },
+  {
+    "id": "postgresql",
+    "nombre": "PostgreSQL & Bases Relacionales Modernas",
+    "capa": "capa-3",
+    "capaNumero": 3,
+    "capaNombre": "Bases de Datos (El Arte de Persistir)",
+    "descripcion_corta": "El estándar SQL robusto: tipos JSONB, índices GIN, transacciones ACID y bases en el Edge (Turso/Neon).",
+    "explicacion": "<p><strong>PostgreSQL</strong> es la base de datos relacional open source más avanzada del mundo. Combina la solidez de las transacciones ACID con características avanzadas como soporte nativo para <strong>JSONB</strong>, búsqueda de texto completo y extensiones.</p><p>En stacks modernos, proveedores como <strong>Neon</strong> (serverless postgres) y <strong>Turso</strong> (libSQL en el Edge) permiten conectar bases relacionales con latencia mínima.</p>",
+    "resumen_practico": "Ideal cuando tus datos tienen relaciones financieras o de inventario complejas donde la consistencia estricta es prioritaria.",
+    "en_tu_stack": "PostgreSQL / Turso (libSQL) + Drizzle ORM",
+    "ejemplo_codigo": {
+      "lenguaje": "sql",
+      "titulo": "Consulta con JSONB y JOINs en PostgreSQL",
+      "codigo": "-- Consulta relacional con agregación y campo JSONB\nSELECT \n  u.id,\n  u.email,\n  u.profile->>'company' AS company_name,\n  COUNT(o.id) AS total_orders,\n  COALESCE(SUM(o.amount), 0) AS total_spent\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id\nWHERE u.created_at >= NOW() - INTERVAL '30 days'\nGROUP BY u.id, u.email, u.profile;\n\n-- Índice GIN para búsquedas instantáneas en JSONB\nCREATE INDEX idx_users_profile_gin ON users USING GIN (profile);"
+    },
+    "tags": ["database", "sql", "postgres", "turso", "drizzle"],
+    "relacionados": ["sql-vs-nosql", "mongodb", "orm"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar Drizzle ORM con PostgreSQL o Turso en Next.js 16?",
+      "prompt_completo": "Muestra cómo configurar Drizzle ORM con TypeScript y PostgreSQL (o Turso libSQL) en Next.js 16 definiendo esquemas con relaciones y ejecutando migraciones automáticas."
+    }
+  },
+  {
+    "id": "caching",
+    "nombre": "Estrategias de Caché Multinivel",
+    "capa": "capa-3",
+    "capaNumero": 3,
+    "capaNombre": "Bases de Datos (El Arte de Persistir)",
+    "descripcion_corta": "Las 4 capas de caché: CDN (Edge), Navegador (HTTP), Servidor (Redis/Upstash) y Next.js Data Cache.",
+    "explicacion": "<p>Para evitar golpear la base de datos en cada interacción, una arquitectura web profesional implementa caché en 4 capas estratégicas:</p><ul><li><strong>1. CDN / Edge Cache</strong>: Almacena assets estáticos y páginas pre-renderizadas cerca del usuario geográficamente (Vercel Edge / Cloudflare).</li><li><strong>2. Caché del Navegador</strong>: Cabeceras <code>Cache-Control</code> para recursos que el cliente no debe volver a pedir.</li><li><strong>3. Caché de Servidor en Memoria (Redis / Upstash)</strong>: Almacena resultados de consultas pesadas o sesiones activas con tiempos de lectura de 1ms.</li><li><strong>4. Next.js Data Cache</strong>: Caché de peticiones `fetch()` con revalidación granular por tiempo o etiquetas (tags).</li></ul>",
+    "resumen_practico": "Usa Redis para queries de base de datos que se leen 100 veces por segundo y Next.js Data Cache para páginas completas con ISR.",
+    "en_tu_stack": "Next.js Data Cache + Upstash Redis",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Patrón Cache-Aside con Redis en Next.js",
+      "codigo": "import { Redis } from '@upstash/redis';\nimport { User } from '@/models/User';\n\nconst redis = Redis.fromEnv();\n\nexport async function getUserWithCache(userId: string) {\n  const cacheKey = `user:${userId}`;\n  \n  // 1. Intentar leer de Redis (Memoria)\n  const cached = await redis.get(cacheKey);\n  if (cached) return cached;\n\n  // 2. Si hay Cache Miss, consultar MongoDB\n  const user = await User.findById(userId).lean();\n  if (!user) return null;\n\n  // 3. Guardar en Redis con TTL de 60 segundos\n  await redis.set(cacheKey, JSON.stringify(user), { ex: 60 });\n  return user;\n}"
+    },
+    "tags": ["database", "caché", "redis", "rendimiento", "cdn"],
+    "relacionados": ["isr", "rate-limiting", "mongodb"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo diseñar una estrategia de invalidación de caché eficiente en Next.js?",
+      "prompt_completo": "Diseña un flujo de invalidación de caché multinivel combinando Redis con las funciones revalidateTag y revalidatePath de Next.js 16 tras mutaciones en la base de datos."
+    }
+  },
+  {
+    "id": "paas",
+    "nombre": "PaaS (Platform as a Service) & Vercel",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Despliegues automáticos con Git, escalado elástico y cero gestión de servidores físicos.",
+    "explicacion": "<p><strong>PaaS</strong> abstrae la infraestructura subyacente (servidores Linux, parches de seguridad, balanceadores de carga). Plataformas como <strong>Vercel</strong> y <strong>Railway</strong> compilan tu código directamente al hacer <code>git push</code>.</p><p>Ofrecen previsualizaciones por branch (Preview Deployments), dominios con SSL automático y monitoreo integrado.</p>",
+    "resumen_practico": "Vercel es la plataforma nativa optimizada para Next.js con soporte automático para Serverless Functions, Edge Middleware y Turbopack builds.",
+    "en_tu_stack": "Vercel / Railway + GitHub Actions",
+    "ejemplo_codigo": {
+      "lenguaje": "yaml",
+      "titulo": ".github/workflows/deploy.yml (CI/CD Automático)",
+      "codigo": "name: CI & Deployment Pipeline\non:\n  push:\n    branches: [main]\n\njobs:\n  build-and-test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - run: npm ci\n      - run: npm run lint\n      - run: npm run build\n      - name: Deploy to Vercel Production\n        uses: amondnet/vercel-action@v25\n        with:\n          vercel-token: ${{ secrets.VERCEL_TOKEN }}\n          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}\n          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}\n          vercel-args: '--prod'"
+    },
+    "tags": ["infraestructura", "devops", "vercel", "cloud", "ci-cd"],
+    "relacionados": ["serverless", "dbaas", "env-vars"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar un pipeline de CI/CD para Next.js en GitHub Actions?",
+      "prompt_completo": "Escribe un workflow completo de GitHub Actions para Next.js 16 que ejecute tests unitarios, linting, build estricto y despliegue a Vercel solo si todas las pruebas pasan."
+    }
+  },
+  {
+    "id": "dbaas",
+    "nombre": "DBaaS (Database as a Service)",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Bases de datos gestionadas en la nube: MongoDB Atlas, Turso, Neon y backups automáticos.",
+    "explicacion": "<p><strong>DBaaS</strong> elimina la necesidad de configurar clusters de bases de datos manualmente. Los proveedores gestionan parches de seguridad, réplicas de alta disponibilidad, copias de seguridad continuas y escalado automático de disco y cómputo.</p><p>Ejemplos líderes: <strong>MongoDB Atlas</strong> para NoSQL, <strong>Neon</strong> para Postgres serverless y <strong>Turso</strong> para bases de datos SQLite distribuidas en el Edge.</p>",
+    "resumen_practico": "Usa cadenas de conexión seguras con pooling de conexiones en entornos serverless para evitar agotar el límite de sockets TCP.",
+    "en_tu_stack": "MongoDB Atlas Cluster + MONGODB_URI",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Singleton de conexión MongoDB para Serverless (lib/mongodb.ts)",
+      "codigo": "import { MongoClient } from 'mongodb';\n\nconst uri = process.env.MONGODB_URI!;\nlet client: MongoClient;\nlet clientPromise: Promise<MongoClient>;\n\nif (process.env.NODE_ENV === 'development') {\n  // En desarrollo, usa una variable global para preservar la conexión entre HMR\n  let globalWithMongo = global as typeof globalThis & { _mongoClientPromise?: Promise<MongoClient> };\n  if (!globalWithMongo._mongoClientPromise) {\n    client = new MongoClient(uri);\n    globalWithMongo._mongoClientPromise = client.connect();\n  }\n  clientPromise = globalWithMongo._mongoClientPromise;\n} else {\n  // En producción, crea una nueva instancia reutilizable\n  client = new MongoClient(uri);\n  clientPromise = client.connect();\n}\n\nexport default clientPromise;"
+    },
+    "tags": ["infraestructura", "database", "mongodb", "atlas", "serverless"],
+    "relacionados": ["paas", "serverless", "mongodb"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo prevenir el agotamiento de conexiones de base de datos en Next.js serverless?",
+      "prompt_completo": "Explica el problema de agotamiento de conexiones en funciones serverless con MongoDB/PostgreSQL y cómo implementar connection pooling y singletons en Next.js."
+    }
+  },
+  {
+    "id": "serverless",
+    "nombre": "Serverless & FaaS (Function as a Service)",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Ejecución de código bajo demanda con escalado a cero (Scale-to-Zero) y coste por milisegundo.",
+    "explicacion": "<p>En la arquitectura <strong>Serverless</strong>, no mantienes servidores encendidos 24/7. Cada endpoint o Server Action se empaqueta como una función efímera que se inicia bajo demanda en milisegundos cuando un usuario realiza una solicitud y se apaga al terminar.</p><p><strong>Ventajas:</strong> Escalabilidad infinita ante picos de tráfico y costo cero cuando no hay visitas.</p>",
+    "resumen_practico": "En Next.js en Vercel, todas tus API Routes y Server Actions se ejecutan como funciones serverless por defecto.",
+    "en_tu_stack": "Vercel Serverless Functions (Node.js runtime)",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Función Serverless con Timeout y Memoria configurada",
+      "codigo": "// Configuración de función en Next.js\nexport const maxDuration = 30; // Máximo 30 segundos de ejecución\n\nexport async function POST(req: Request) {\n  const data = await req.json();\n  // Se ejecuta en un entorno aislado bajo demanda\n  return Response.json({ status: 'Procesado en Serverless' });\n}"
+    },
+    "tags": ["infraestructura", "serverless", "faas", "cloud", "escalabilidad"],
+    "relacionados": ["paas", "edge", "dbaas"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo minimizar el Cold Start en funciones serverless de Next.js?",
+      "prompt_completo": "Explica qué es un Cold Start en funciones serverless de Next.js, cómo afecta el TTFB y qué técnicas existen para reducirlo al mínimo en producción."
+    }
+  },
+  {
+    "id": "edge",
+    "nombre": "Edge Runtime & Computación Distribuida",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Ejecución de código en servidores CDN distribuidos a pocos milisegundos del usuario global.",
+    "explicacion": "<p>El <strong>Edge Runtime</strong> ejecuta código en cientos de servidores distribuidos geográficamente por todo el mundo (en los puntos de presencia de la CDN). A diferencia de Node.js completo, el Edge Runtime es un subconjunto ligero basado en estándares web (Fetch API, Streams, Web Crypto).</p><p>Permite latencias de ejecución inferiores a 10ms para middleware de autenticación, geo-redirecciones y personalización.</p>",
+    "resumen_practico": "Turso es una base de datos SQLite embebida en el Edge ideal para complementar el Edge Runtime de Next.js.",
+    "en_tu_stack": "export const runtime = 'edge'; en middleware o routes",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Route Handler en el Edge Runtime",
+      "codigo": "export const runtime = 'edge';\n\nexport async function GET(request: Request) {\n  // Corre en el nodo más cercano al visitante con latencia ultrabaja\n  const { geo } = request as any;\n  \n  return new Response(JSON.stringify({\n    message: 'Hola desde el Edge',\n    city: geo?.city || 'Desconocida',\n    country: geo?.country || 'Global'\n  }), {\n    headers: { 'Content-Type': 'application/json' }\n  });\n}"
+    },
+    "tags": ["infraestructura", "edge", "latencia", "distribuido", "nextjs16"],
+    "relacionados": ["middleware", "serverless", "paas"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cuáles son las limitaciones del Edge Runtime frente a Node.js en Next.js?",
+      "prompt_completo": "Enumera las limitaciones de APIs (ej. falta de fs, net, buffers tradicionales) al usar 'runtime: edge' en Next.js y qué paquetes son compatibles."
+    }
+  },
+  {
+    "id": "env-vars",
+    "nombre": "Variables de Entorno & Seguridad de Secretos",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Regla de oro: NEXT_PUBLIC_ se expone al cliente, secretos nunca en variables públicas.",
+    "explicacion": "<p>Las <strong>variables de entorno</strong> gestionan configuraciones dinámicas y secretos criptográficos entre entornos de desarrollo, staging y producción.</p><p><strong>Regla de oro en Next.js:</strong> Cualquier variable que comience con <code>NEXT_PUBLIC_</code> es incrustada en el paquete JavaScript del navegador durante el build y es visible para cualquiera. Las variables sin ese prefijo permanecen estrictamente seguras en el servidor.</p>",
+    "resumen_practico": "Nunca pongas credenciales de base de datos (`MONGODB_URI`) ni claves maestras de autenticación (`JWT_SECRET`) en variables con `NEXT_PUBLIC_`.",
+    "en_tu_stack": ".env.local en local y Vercel Project Settings en prod",
+    "ejemplo_codigo": {
+      "lenguaje": "bash",
+      "titulo": ".env.local (Configuración canónica)",
+      "codigo": "# 🔒 PRIVADO: Solo accesible en Server Components, Route Handlers y Server Actions\nMONGODB_URI=mongodb+srv://admin:pass@cluster.mongodb.net/prod?retryWrites=true&w=majority\nAUTH_SECRET=f78a631481bc9e1029c3d4a25e128b9a\nUPSTASH_REDIS_REST_TOKEN=AX_123456\n\n# 🌐 PÚBLICO: Accesible en el navegador / Client Components\nNEXT_PUBLIC_APP_URL=https://miapp.com\nNEXT_PUBLIC_GA_TRACKING_ID=G-ABC123XYZ"
+    },
+    "tags": ["infraestructura", "seguridad", "env", "configuracion"],
+    "relacionados": ["paas", "broken-auth", "dbaas"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo validar variables de entorno con Zod en tiempo de build en Next.js?",
+      "prompt_completo": "Muestra cómo crear un archivo env.mjs / env.ts usando Zod para validar que todas las variables de entorno requeridas estén presentes al compilar Next.js."
+    }
+  },
+  {
+    "id": "logging",
+    "nombre": "Observabilidad, Sentry & Core Web Vitals",
+    "capa": "capa-4",
+    "capaNumero": 4,
+    "capaNombre": "Infraestructura y Despliegue",
+    "descripcion_corta": "Monitoreo en tiempo real: trazas de errores, excepciones en producción y métricas CWV (LCP, INP, CLS).",
+    "explicacion": "<p>La <strong>observabilidad</strong> te permite saber qué ocurre en tu aplicación en producción antes de que tus usuarios reporten fallos:</p><ul><li><strong>Monitoreo de Errores (Sentry)</strong>: Captura excepciones con stack traces completos y contexto de usuario.</li><li><strong>Core Web Vitals (CWV)</strong>: Métricas de Google para medir experiencia real: LCP (Carga visual), INP (Interactividad/Respuesta) y CLS (Estabilidad visual).</li><li><strong>Structured Logging (Pino)</strong>: Logs estructurados en JSON listos para indexar en Datadog o Axiom.</li></ul>",
+    "resumen_practico": "Integra `@sentry/nextjs` para capturar errores de cliente y servidor de forma unificada.",
+    "en_tu_stack": "Sentry Next.js SDK + Vercel Analytics",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Captura de excepciones con Sentry en Next.js",
+      "codigo": "import * as Sentry from '@sentry/nextjs';\n\nexport async function processPayment(paymentData: any) {\n  try {\n    // Lógica crítica\n    if (!paymentData.card) throw new Error('Tarjeta no especificada');\n  } catch (error) {\n    Sentry.captureException(error, {\n      extra: { userId: paymentData.userId, amount: paymentData.amount }\n    });\n    throw error;\n  }\n}"
+    },
+    "tags": ["infraestructura", "monitoreo", "sentry", "rendimiento", "cwv"],
+    "relacionados": ["paas", "env-vars"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo medir y optimizar Interaction to Next Paint (INP) en Next.js?",
+      "prompt_completo": "Explica la métrica Core Web Vital INP (Interaction to Next Paint) y cómo optimizar componentes React en Next.js reduciendo el bloqueo del hilo principal con useTransition y Web Workers."
+    }
+  },
+  {
+    "id": "typescript",
+    "nombre": "TypeScript Estricto & Tipado End-to-End",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "Tipado estático para JavaScript: elimina el 80% de los bugs en tiempo de escritura y autocompleta APIs.",
+    "explicacion": "<p><strong>TypeScript</strong> añade tipos estáticos opcionales a JavaScript. Permite detectar errores de compilación (ej. propiedades inexistentes, argumentos incorrectos) en tu editor antes de ejecutar una sola línea de código.</p><p>En Next.js con Server Actions y Route Handlers, TypeScript proporciona seguridad de tipos de extremo a extremo (End-to-End Type Safety) entre base de datos y UI.</p>",
+    "resumen_practico": "Activa `strict: true` en `tsconfig.json` y tipa siempre tus Server Components, props y respuestas API con interfaces o schemas Zod.",
+    "en_tu_stack": "TypeScript 5 + Next.js App Router tipado nativo",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Tipado riguroso de Props y Respuestas API",
+      "codigo": "export interface ApiResponse<T> {\n  success: boolean;\n  data?: T;\n  error?: string;\n}\n\nexport interface Article {\n  id: string;\n  title: string;\n  tags: string[];\n  published: boolean;\n}\n\nexport async function getArticle(id: string): Promise<ApiResponse<Article>> {\n  // Autocompletado y validación de tipos garantizados\n  return { success: true, data: { id, title: 'Next.js 16', tags: ['web'], published: true } };\n}"
+    },
+    "tags": ["devx", "typescript", "tipado", "productividad"],
+    "relacionados": ["eslint-prettier", "turbopack"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo inferir tipos TypeScript automáticamente desde esquemas de Zod?",
+      "prompt_completo": "Muestra cómo usar z.infer<typeof schema> en TypeScript para compartir tipos entre validaciones de backend en Server Actions y formularios de frontend en React."
+    }
+  },
+  {
+    "id": "eslint-prettier",
+    "nombre": "ESLint, Prettier & Git Hooks (Husky)",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "Linter para código limpio y formateador automático antes de cada commit.",
+    "explicacion": "<p><strong>ESLint</strong> analiza el código estáticamente para prevenir malas prácticas y bugs lógicos. <strong>Prettier</strong> se encarga exclusivamente del formato visual (comillas, punto y coma, sangría).</p><p>Combinados con <strong>Husky</strong> y <strong>lint-staged</strong>, impiden que cualquier desarrollador haga commit de código con errores o estilos inconsistentes.</p>",
+    "resumen_practico": "Ejecuta `next lint` periódicamente y configura tu editor para formatear automáticamente al guardar (Format on Save).",
+    "en_tu_stack": "eslint-config-next + Prettier + Husky",
+    "ejemplo_codigo": {
+      "lenguaje": "json",
+      "titulo": "package.json (Configuración lint-staged & husky)",
+      "codigo": "{\n  \"scripts\": {\n    \"lint\": \"next lint\",\n    \"format\": \"prettier --write .\"\n  },\n  \"lint-staged\": {\n    \"*.{js,jsx,ts,tsx}\": [\n      \"eslint --fix\",\n      \"prettier --write\"\n    ]\n  }\n}"
+    },
+    "tags": ["devx", "calidad", "eslint", "prettier", "git"],
+    "relacionados": ["conventional-commits", "typescript"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar ESLint flat config con Prettier y TypeScript en Next.js 16?",
+      "prompt_completo": "Explica cómo configurar eslint.config.mjs (formato Flat Config) en Next.js 16 para integrar reglas de TypeScript, React Hooks y Prettier sin conflictos."
+    }
+  },
+  {
+    "id": "turbopack",
+    "nombre": "Turbopack & Bundlers de Alta Velocidad",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "El empaquetador ultrarrápido escrito en Rust integrado de forma nativa en Next.js 16.",
+    "explicacion": "<p><strong>Turbopack</strong> es el sucesor de Webpack creado por el equipo de Vercel y los autores de Webpack/Rust. Es hasta 10 veces más rápido en builds de desarrollo y recarga de módulos (HMR).</p><p>En <strong>Next.js 16</strong>, Turbopack viene habilitado por defecto para el servidor de desarrollo (<code>next dev</code>) y builds de producción, reduciendo los tiempos de espera a fracciones de segundo.</p>",
+    "resumen_practico": "Turbopack no requiere configuración manual compleja; compila tus archivos TypeScript y CSS de forma transparente.",
+    "en_tu_stack": "Next.js 16 Turbopack Engine",
+    "ejemplo_codigo": {
+      "lenguaje": "bash",
+      "titulo": "Ejecución con Turbopack",
+      "codigo": "# Next.js 16 utiliza Turbopack de forma nativa\nnpm run dev\n\n# Compilación de producción con Turbopack\nnpm run build"
+    },
+    "tags": ["devx", "turbopack", "rendimiento", "nextjs16", "rust"],
+    "relacionados": ["hmr", "monorepo"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Qué ventajas aporta Turbopack frente a Webpack y Vite en Next.js 16?",
+      "prompt_completo": "Explica la arquitectura interna de Turbopack basada en computación incremental en Rust y cómo acelera el desarrollo en proyectos Next.js grandes."
+    }
+  },
+  {
+    "id": "hmr",
+    "nombre": "HMR (Hot Module Replacement)",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "Refresco instantáneo de código en el navegador sin recargar la página ni perder el estado de la UI.",
+    "explicacion": "<p><strong>HMR</strong> inyecta módulos modificados directamente en la aplicación en tiempo de ejecución en el navegador. Si estás probando un modal con un formulario a medio llenar y editas el CSS o un texto, el cambio se refleja inmediatamente sin resetear los campos ni recargar la pestaña.</p>",
+    "resumen_practico": "React Fast Refresh y Turbopack preservan el estado de hooks `useState` al editar componentes.",
+    "en_tu_stack": "React Fast Refresh en Next.js",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Componente que mantiene estado con Fast Refresh",
+      "codigo": "'use client';\nimport { useState } from 'react';\n\nexport function FastRefreshDemo() {\n  const [text, setText] = useState('Escribe algo aquí...');\n  \n  // Modifica el diseño o color abajo: el texto escrito arriba NO se perderá\n  return (\n    <div className=\"p-4 border border-indigo-500 rounded-xl\">\n      <input value={text} onChange={(e) => setText(e.target.value)} className=\"border p-2 rounded\" />\n      <p className=\"mt-2 text-indigo-400 font-bold\">Vista previa en vivo: {text}</p>\n    </div>\n  );\n}"
+    },
+    "tags": ["devx", "hmr", "react", "desarrollo"],
+    "relacionados": ["turbopack", "client-state"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Por qué un componente puede perder su estado durante Fast Refresh en React?",
+      "prompt_completo": "Explica las reglas que deben seguir los componentes de React para que Fast Refresh (HMR) conserve el estado local de useState al guardar cambios."
+    }
+  },
+  {
+    "id": "conventional-commits",
+    "nombre": "Conventional Commits & Commitlint",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "Estandarización semántica de mensajes Git (feat, fix, chore, docs) para changelogs automáticos.",
+    "explicacion": "<p>La especificación <strong>Conventional Commits</strong> estandariza los mensajes de confirmación de Git con el formato <code>tipo(ámbito opcional): descripción breve</code>.</p><p>Tipos principales:</p><ul><li><code>feat:</code> Una nueva característica para el usuario.</li><li><code>fix:</code> Corrección de un bug.</li><li><code>chore:</code> Tareas de mantenimiento o dependencias.</li><li><code>docs:</code> Cambios en documentación.</li><li><code>refactor:</code> Cambio en el código que ni arregla un bug ni añade una feature.</li></ul>",
+    "resumen_practico": "Permite generar versiones semánticas (SemVer) y changelogs automáticos con Semantic Release.",
+    "en_tu_stack": "commitlint + husky pre-commit / commit-msg hook",
+    "ejemplo_codigo": {
+      "lenguaje": "bash",
+      "titulo": "Ejemplos de commits semánticos válidos",
+      "codigo": "# Nueva funcionalidad en auth\ngit commit -m \"feat(auth): añadir soporte para login con OAuth Google y cookies HttpOnly\"\n\n# Corrección de bug en el visualizador\ngit commit -m \"fix(layers): corregir z-index en la tarjeta isométrica de capa 3\"\n\n# Tarea de dependencias\ngit commit -m \"chore(deps): actualizar next a version 16.3.4 y react a 19\""
+    },
+    "tags": ["devx", "git", "conventional-commits", "calidad"],
+    "relacionados": ["eslint-prettier", "monorepo"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar commitlint con husky en un proyecto Next.js?",
+      "prompt_completo": "Muestra los comandos y configuración para instalar @commitlint/config-conventional y husky en un repositorio Git para validar commits automáticamente."
+    }
+  },
+  {
+    "id": "monorepo",
+    "nombre": "Monorepos (Turborepo & Nx)",
+    "capa": "capa-5",
+    "capaNumero": 5,
+    "capaNombre": "DevX (Experiencia del Desarrollador)",
+    "descripcion_corta": "Múltiples aplicaciones y paquetes compartidos (UI, tipos, DB) en un solo repositorio con caché distribuida.",
+    "explicacion": "<p>Un <strong>Monorepo</strong> organiza varios proyectos (ej. aplicación web Next.js, app móvil Expo, paquete de componentes UI compartido y backend) dentro del mismo repositorio de código.</p><p>Herramientas como <strong>Turborepo</strong> calculan el árbol de dependencias y aplican <strong>Caché de Tareas</strong>: si el código de un paquete no cambió, su compilación y tests se recuperan instantáneamente del caché local o de la nube.</p>",
+    "resumen_practico": "Si tienes varios stacks o librerías compartidas (ej. schemas de base de datos o utilidades de autenticación), unificarlos con Turborepo acelera tu flujo de trabajo.",
+    "en_tu_stack": "Turborepo + pnpm workspaces",
+    "ejemplo_codigo": {
+      "lenguaje": "json",
+      "titulo": "turbo.json (Pipeline de Monorepo)",
+      "codigo": "{\n  \"$schema\": \"https://turbo.build/schema.json\",\n  \"tasks\": {\n    \"build\": {\n      \"dependsOn\": [\"^build\"],\n      \"outputs\": [\".next/**\", \"!.next/cache/**\", \"dist/**\"]\n    },\n    \"lint\": {\n      \"dependsOn\": [\"^lint\"]\n    },\n    \"dev\": {\n      \"cache\": false,\n      \"persistent\": true\n    }\n  }\n}"
+    },
+    "tags": ["devx", "monorepo", "turborepo", "arquitectura", "pnpm"],
+    "relacionados": ["turbopack", "conventional-commits"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo estructurar un Monorepo con Turborepo, Next.js y un paquete UI compartido?",
+      "prompt_completo": "Diseña la estructura de carpetas de un monorepo con Turborepo y pnpm que contenga una app Next.js 16, una app administrativa y un paquete compartido de componentes UI con Tailwind CSS."
+    }
+  },
+  {
+    "id": "websockets",
+    "nombre": "WebSockets (Socket.io & ws)",
+    "capa": "capa-6",
+    "capaNumero": 6,
+    "capaNombre": "Comunicación en Tiempo Real",
+    "descripcion_corta": "Conexión TCP bidireccional continua y persistente para chats, juegos y colaboración interactiva.",
+    "explicacion": "<p>El protocolo <strong>WebSocket</strong> (<code>ws://</code> o <code>wss://</code>) establece un canal de comunicación dúplex completo sobre una única conexión TCP de larga duración.</p><p>Permite que tanto el cliente como el servidor envíen mensajes de forma instantánea en cualquier momento con una sobrecarga de cabeceras mínima comparado con peticiones HTTP repetitivas.</p>",
+    "resumen_practico": "Dado que las funciones serverless de Vercel no mantienen conexiones persistentes abiertas, para WebSockets en producción se suele usar un microservicio en Railway/Node.js o soluciones como Pusher / Ably / Supabase Realtime.",
+    "en_tu_stack": "Socket.io Client / Servidor dedicado / Supabase Realtime",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Cliente WebSocket en React (Next.js)",
+      "codigo": "'use client';\n\nimport { useEffect, useState } from 'react';\nimport { io, Socket } from 'socket.io-client';\n\nexport function LiveChat() {\n  const [messages, setMessages] = useState<string[]>([]);\n  const [socket, setSocket] = useState<Socket | null>(null);\n\n  useEffect(() => {\n    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000');\n    setSocket(newSocket);\n\n    newSocket.on('chat_message', (msg: string) => {\n      setMessages((prev) => [...prev, msg]);\n    });\n\n    return () => {\n      newSocket.disconnect();\n    };\n  }, []);\n\n  const sendMessage = (text: string) => {\n    socket?.emit('send_message', text);\n  };\n\n  return <div>{messages.map((m, i) => <p key={i}>{m}</p>)}</div>;\n}"
+    },
+    "tags": ["tiempo-real", "websockets", "socketio", "comunicacion"],
+    "relacionados": ["sse", "firebase-realtime", "long-polling"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo integrar WebSockets en una arquitectura serverless con Next.js?",
+      "prompt_completo": "Explica las alternativas para manejar WebSockets en aplicaciones Next.js desplegadas en Vercel (Pusher, Supabase Realtime, AWS API Gateway WebSockets, servidor Node.js independiente)."
+    }
+  },
+  {
+    "id": "sse",
+    "nombre": "SSE (Server-Sent Events)",
+    "capa": "capa-6",
+    "capaNumero": 6,
+    "capaNombre": "Comunicación en Tiempo Real",
+    "descripcion_corta": "Streaming unidireccional (Servidor ➔ Cliente) sobre HTTP estándar: ideal para notificaciones e IA.",
+    "explicacion": "<p><strong>Server-Sent Events (SSE)</strong> permite al servidor transmitir flujos de eventos o datos al navegador a través de una conexión HTTP estándar con cabecera <code>Content-Type: text/event-stream</code>.</p><p>A diferencia de WebSockets, es <strong>unidireccional</strong> (servidor a cliente), cuenta con reconexión automática nativa en el navegador mediante <code>EventSource</code> y funciona perfectamente con proxies y cortafuegos HTTP.</p>",
+    "resumen_practico": "Es el estándar utilizado para streaming de respuestas de Inteligencia Artificial (ChatGPT/Claude/Gemini) y feeds de notificaciones en tiempo real en Next.js.",
+    "en_tu_stack": "NextResponse con ReadableStream en Route Handlers",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Route Handler SSE en Next.js 16",
+      "codigo": "export async function GET() {\n  const encoder = new TextEncoder();\n  \n  const stream = new ReadableStream({\n    start(controller) {\n      let count = 0;\n      const interval = setInterval(() => {\n        count++;\n        const data = `data: ${JSON.stringify({ message: 'Evento en vivo', count, time: Date.now() })}\\n\\n`;\n        controller.enqueue(encoder.encode(data));\n        if (count >= 10) {\n          clearInterval(interval);\n          controller.close();\n        }\n      }, 1000);\n    }\n  });\n\n  return new Response(stream, {\n    headers: {\n      'Content-Type': 'text/event-stream',\n      'Cache-Control': 'no-cache, no-transform',\n      'Connection': 'keep-alive',\n    },\n  });\n}"
+    },
+    "tags": ["tiempo-real", "sse", "streaming", "ia", "http"],
+    "relacionados": ["websockets", "streaming-ssr", "firebase-realtime"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar Server-Sent Events (SSE) en Next.js para streaming de texto con IA?",
+      "prompt_completo": "Escribe un ejemplo de Route Handler en Next.js 16 que consuma un stream de OpenAI / Gemini y lo retransmita al cliente mediante Server-Sent Events (SSE) consumido con fetch y ReadableStream."
+    }
+  },
+  {
+    "id": "long-polling",
+    "nombre": "Long Polling & Fallbacks de Red",
+    "capa": "capa-6",
+    "capaNumero": 6,
+    "capaNombre": "Comunicación en Tiempo Real",
+    "descripcion_corta": "Técnica donde el servidor retiene la petición HTTP hasta que existan datos nuevos o ocurra un timeout.",
+    "explicacion": "<p><strong>Long Polling</strong> fue el precursor histórico de los WebSockets. El cliente abre una solicitud HTTP y el servidor suspende la respuesta hasta que ocurre un evento relevante en la base de datos o expira el tiempo límite. Al recibir los datos, el cliente emite inmediatamente una nueva solicitud.</p><p>Sigue utilizándose como mecanismo de respaldo (fallback) en redes empresariales restrictivas que bloquean el protocolo WebSocket.</p>",
+    "resumen_practico": "Menos eficiente en uso de CPU que SSE o WebSockets, pero compatible con el 100% de la infraestructura web existente.",
+    "en_tu_stack": "Fallback en socket.io o polling en SWR/React Query",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Cliente Long Polling recursivo",
+      "codigo": "async function startLongPolling(onData: (data: any) => void) {\n  let active = true;\n  \n  while (active) {\n    try {\n      const res = await fetch('/api/live-updates', { cache: 'no-store' });\n      if (res.status === 200) {\n        const data = await res.json();\n        onData(data);\n      }\n    } catch (err) {\n      // Esperar 3 segundos antes de reintentar ante error\n      await new Promise((r) => setTimeout(r, 3000));\n    }\n  }\n}"
+    },
+    "tags": ["tiempo-real", "long-polling", "http", "fallback"],
+    "relacionados": ["websockets", "sse"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Por qué WebSockets y SSE reemplazaron al Long Polling?",
+      "prompt_completo": "Compara el consumo de ancho de banda, cabeceras HTTP y sobrecarga de CPU entre Long Polling, SSE y WebSockets para un dashboard en tiempo real."
+    }
+  },
+  {
+    "id": "firebase-realtime",
+    "nombre": "BaaS Realtime (Supabase & Firebase)",
+    "capa": "capa-6",
+    "capaNumero": 6,
+    "capaNombre": "Comunicación en Tiempo Real",
+    "descripcion_corta": "Bases de datos reactivas con listeners en el cliente sin gestionar servidores de WebSockets.",
+    "explicacion": "<p>Las soluciones <strong>Backend as a Service (BaaS)</strong> como <strong>Supabase Realtime</strong> (basado en PostgreSQL CDC y WebSockets) o <strong>Firebase</strong> ofrecen sincronización en tiempo real lista para usar.</p><p>Te permiten suscribirte a cambios en tablas o documentos desde el cliente mediante SDKs declarativos sin preocuparte por la infraestructura de escalado de conexiones concurrentes.</p>",
+    "resumen_practico": "Ideal para prototipos rápidos o aplicaciones donde quieres sincronización instantánea de base de datos sin programar WebSockets en el backend.",
+    "en_tu_stack": "Supabase Realtime Client / Firebase SDK",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Suscripción Realtime con Supabase en React",
+      "codigo": "'use client';\n\nimport { useEffect, useState } from 'react';\nimport { createClient } from '@supabase/supabase-js';\n\nconst supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);\n\nexport function RealtimeNotifications() {\n  const [notifications, setNotifications] = useState<any[]>([]);\n\n  useEffect(() => {\n    const channel = supabase\n      .channel('public:notifications')\n      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {\n        setNotifications((prev) => [payload.new, ...prev]);\n      })\n      .subscribe();\n\n    return () => {\n      supabase.removeChannel(channel);\n    };\n  }, []);\n\n  return <ul>{notifications.map((n) => <li key={n.id}>{n.title}</li>)}</ul>;\n}"
+    },
+    "tags": ["tiempo-real", "baas", "supabase", "firebase", "database"],
+    "relacionados": ["websockets", "sse", "postgresql"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo implementar Supabase Realtime o Firebase con Next.js 16?",
+      "prompt_completo": "Muestra cómo suscribirse a cambios de una tabla en Supabase Realtime desde un Client Component de Next.js 16 con manejo de desuscripción y actualización optimista."
+    }
+  },
+  {
+    "id": "unit-testing",
+    "nombre": "Pruebas Unitarias (Vitest & Jest)",
+    "capa": "capa-7",
+    "capaNumero": 7,
+    "capaNombre": "Pruebas y Calidad (Testing)",
+    "descripcion_corta": "Validación de funciones puras, hooks y lógica de negocio en milisegundos de forma aislada.",
+    "explicacion": "<p>Las <strong>pruebas unitarias</strong> representan la base más amplia de la pirámide de testing. Verifican que una función individual, helper de formato o cálculo matemático produzca la salida esperada para entradas dadas sin interactuar con bases de datos ni navegadores reales.</p><p><strong>Vitest</strong> es el estándar moderno ultrarrápido compatible con TypeScript y ESM, superando a Jest en velocidad.</p>",
+    "resumen_practico": "Prueba exhaustivamente tus validadores de Zod, funciones de autenticación y helpers matemáticos de tu aplicación.",
+    "en_tu_stack": "Vitest o Jest con TypeScript",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Prueba Unitaria con Vitest (tests/utils.test.ts)",
+      "codigo": "import { describe, it, expect } from 'vitest';\nimport { formatPrice, validateEmail } from '@/lib/utils';\n\ndescribe('Utilidades de Formato', () => {\n  it('debe formatear precios en moneda USD correctamente', () => {\n    expect(formatPrice(19.99)).toBe('$19.99');\n    expect(formatPrice(0)).toBe('$0.00');\n  });\n\n  it('debe validar correos electrónicos válidos e inválidos', () => {\n    expect(validateEmail('usuario@dominio.com')).toBe(true);\n    expect(validateEmail('invalido-sin-arroba')).toBe(false);\n  });\n});"
+    },
+    "tags": ["testing", "unitarias", "vitest", "jest", "calidad"],
+    "relacionados": ["integration-testing", "e2e-testing"],
+    "dificultad": "básico",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar Vitest con TypeScript en un proyecto Next.js 16?",
+      "prompt_completo": "Muestra la configuración paso a paso de vitest.config.ts en Next.js 16 con alias de ruta (@/...) y soporte para pruebas unitarias de TypeScript."
+    }
+  },
+  {
+    "id": "integration-testing",
+    "nombre": "Pruebas de Integración (React Testing Library)",
+    "capa": "capa-7",
+    "capaNumero": 7,
+    "capaNombre": "Pruebas y Calidad (Testing)",
+    "descripcion_corta": "Prueban la interacción entre componentes React, contexto y llamadas a APIs simuladas.",
+    "explicacion": "<p>Las <strong>pruebas de integración</strong> comprueban que múltiples unidades de código funcionen correctamente en conjunto: un formulario interactivo con sus validaciones, un botón que dispara una mutación o un modal que actualiza el estado global.</p><p><strong>React Testing Library (RTL)</strong> fomenta probar el software como lo usaría un usuario real (buscando textos, roles ARIA y botones accesibles) en lugar de detalles internos de implementación.</p>",
+    "resumen_practico": "Evita probar el estado interno de React; prueba lo que el usuario ve y escucha en la pantalla.",
+    "en_tu_stack": "@testing-library/react + @testing-library/user-event",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Prueba de Integración con React Testing Library",
+      "codigo": "import { render, screen } from '@testing-library/react';\nimport userEvent from '@testing-library/user-event';\nimport { describe, it, expect, vi } from 'vitest';\nimport LoginForm from '@/components/LoginForm';\n\ndescribe('<LoginForm />', () => {\n  it('debe permitir escribir credenciales y enviar el formulario', async () => {\n    const mockSubmit = vi.fn();\n    render(<LoginForm onSubmit={mockSubmit} />);\n\n    const emailInput = screen.getByLabelText(/correo electrónico/i);\n    const passwordInput = screen.getByLabelText(/contraseña/i);\n    const submitBtn = screen.getByRole('button', { name: /iniciar sesión/i });\n\n    await userEvent.type(emailInput, 'dev@empresa.com');\n    await userEvent.type(passwordInput, 'secreto123');\n    await userEvent.click(submitBtn);\n\n    expect(mockSubmit).toHaveBeenCalledWith({\n      email: 'dev@empresa.com',\n      password: 'secreto123'\n    });\n  });\n});"
+    },
+    "tags": ["testing", "integracion", "react-testing-library", "calidad"],
+    "relacionados": ["unit-testing", "e2e-testing"],
+    "dificultad": "intermedio",
+    "prompt_ia": {
+      "pregunta": "¿Cómo mockear llamadas a Server Actions y fetch en React Testing Library?",
+      "prompt_completo": "Muestra cómo escribir pruebas de integración en Next.js usando React Testing Library simulando Server Actions y respuestas de API con MSW (Mock Service Worker)."
+    }
+  },
+  {
+    "id": "e2e-testing",
+    "nombre": "Pruebas End-to-End con Playwright",
+    "capa": "capa-7",
+    "capaNumero": 7,
+    "capaNombre": "Pruebas y Calidad (Testing)",
+    "descripcion_corta": "Simulación de flujos completos de usuario en navegadores reales (Chromium, Firefox, WebKit).",
+    "explicacion": "<p>Las <strong>pruebas E2E (End-to-End)</strong> se sitúan en la cima de la pirámide de calidad. Un robot automatizado abre un navegador web real, interactúa con la aplicación completa (frontend, middleware, backend, base de datos) y verifica que el flujo crítico de negocio funcione de principio a fin.</p><p><strong>Playwright</strong> es la herramienta líder de la industria: soporta múltiples pestañas, autenticación guardada (storageState), capturas de video y trazas automáticas en caso de fallo.</p>",
+    "resumen_practico": "Prueba tus flujos más críticos de negocio: registro de usuario ➔ login ➔ checkout de pago ➔ dashboard.",
+    "en_tu_stack": "@playwright/test en Chromium / Firefox / WebKit",
+    "ejemplo_codigo": {
+      "lenguaje": "typescript",
+      "titulo": "Prueba E2E con Playwright (tests/auth-flow.spec.ts)",
+      "codigo": "import { test, expect } from '@playwright/test';\n\ntest.describe('Flujo de Autenticación de Usuario', () => {\n  test('debe iniciar sesión y redirigir al dashboard', async ({ page }) => {\n    await page.goto('/login');\n\n    // Rellenar formulario\n    await page.getByPlaceholder('tucorreo@ejemplo.com').fill('usuario@demo.com');\n    await page.getByPlaceholder('••••••••').fill('PasswordSeguro123');\n    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();\n\n    // Verificar redirección y presencia de cookie de sesión\n    await expect(page).toHaveURL('/dashboard');\n    await expect(page.getByRole('heading', { name: 'Bienvenido de nuevo' })).toBeVisible();\n  });\n});"
+    },
+    "tags": ["testing", "e2e", "playwright", "calidad", "ci-cd"],
+    "relacionados": ["unit-testing", "integration-testing"],
+    "dificultad": "avanzado",
+    "prompt_ia": {
+      "pregunta": "¿Cómo configurar Playwright en Next.js 16 para pruebas E2E con base de datos de test?",
+      "prompt_completo": "Crea una guía de configuración para Playwright en Next.js 16 con servidor web de pruebas local, cookies de autenticación reutilizables y limpieza de datos en MongoDB."
+    }
+  }
+]
