@@ -7,11 +7,8 @@ import {
   CheckCircle2, 
   Circle, 
   Compass, 
-  ArrowRight, 
   Sparkles, 
   Trophy,
-  Flame,
-  BookOpen
 } from "lucide-react";
 
 interface RoadmapViewProps {
@@ -21,7 +18,6 @@ interface RoadmapViewProps {
 export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
   const [completedPhases, setCompletedPhases] = useState<number[]>([]);
   const [completedConcepts, setCompletedConcepts] = useState<string[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -32,7 +28,6 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
     } catch (e) {
       console.error("Error reading localStorage roadmap:", e);
     }
-    setIsLoaded(true);
   }, []);
 
   const toggleConcept = (id: string) => {
@@ -62,31 +57,31 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
   return (
     <div className="w-full my-8 space-y-8">
       {/* Header & Progress Bar */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+      <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-1">
               <Compass className="h-4 w-4" />
               <span>Ruta de Aprendizaje Evolutiva</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
               Mapa de Ruta Fullstack (6 Fases)
             </h2>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="text-sm text-slate-600 dark:text-zinc-400 mt-1">
               Diseñado para profundizar metódicamente en Next.js 16 + MongoDB + Auth sin saturarte.
             </p>
           </div>
 
           {/* Gamification Badge */}
-          <div className="flex items-center gap-3 self-start md:self-auto p-3 rounded-xl bg-slate-900 border border-white/10">
+          <div className="flex items-center gap-3 self-start md:self-auto p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-xs">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
               <Trophy className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xs text-zinc-400">Progreso Total</div>
-              <div className="text-lg font-bold text-white flex items-center gap-2">
+              <div className="text-xs text-slate-500 dark:text-zinc-400">Progreso Total</div>
+              <div className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{progressPercentage}%</span>
-                <span className="text-[11px] font-normal text-indigo-300">
+                <span className="text-[11px] font-normal text-indigo-600 dark:text-indigo-300">
                   ({completedConceptsCount}/{totalConceptsCount} conceptos)
                 </span>
               </div>
@@ -95,7 +90,7 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
         </div>
 
         {/* Visual Progress Bar */}
-        <div className="w-full bg-slate-900 rounded-full h-3 overflow-hidden border border-white/5">
+        <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-300 dark:border-white/5">
           <div
             className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 transition-all duration-500 rounded-full"
             style={{ width: `${progressPercentage}%` }}
@@ -116,49 +111,49 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
               key={fase.fase}
               className={`p-6 rounded-2xl border transition-all duration-300 flex flex-col justify-between ${
                 isPhaseDone || isAllConceptsDone
-                  ? "bg-slate-900/90 border-emerald-500/40 shadow-emerald-500/10"
-                  : "bg-slate-950/60 border-white/10 hover:border-white/20"
+                  ? "bg-emerald-50/50 dark:bg-slate-900/90 border-emerald-500/40 shadow-emerald-500/10"
+                  : "bg-white/80 dark:bg-slate-950/60 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400 font-mono text-xs font-bold border border-indigo-500/30">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold border border-indigo-500/30">
                       F{fase.fase}
                     </span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                       {fase.nivel}
                     </span>
                   </div>
 
                   <button
                     onClick={() => togglePhase(fase.fase)}
-                    className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                   >
                     {isPhaseDone ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        <span className="text-emerald-400 font-medium">Completada</span>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">Completada</span>
                       </>
                     ) : (
                       <>
-                        <Circle className="h-4 w-4 text-zinc-500" />
+                        <Circle className="h-4 w-4 text-slate-400 dark:text-zinc-500" />
                         <span>Marcar fase</span>
                       </>
                     )}
                   </button>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-2">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                   {fase.titulo}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 leading-relaxed mb-4">
                   {fase.descripcion}
                 </p>
 
                 {/* Concept Chips in this phase */}
                 <div className="space-y-2 mb-4">
-                  <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                  <div className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                     Hitos clave de esta fase:
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -169,17 +164,17 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
                           key={id}
                           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
                             isChecked
-                              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-                              : "bg-slate-900 border-white/10 text-zinc-300 hover:border-white/30"
+                              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                              : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-white/30"
                           }`}
                         >
                           <button
                             onClick={() => toggleConcept(id)}
-                            className="text-zinc-500 hover:text-emerald-400 transition-colors"
+                            className="text-slate-400 hover:text-emerald-600 dark:text-zinc-500 dark:hover:text-emerald-400 transition-colors"
                             title="Completar concepto"
                           >
                             {isChecked ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                             ) : (
                               <Circle className="h-3.5 w-3.5" />
                             )}
@@ -197,12 +192,12 @@ export default function RoadmapView({ conceptos = [] }: RoadmapViewProps) {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-zinc-400">
-                <span className="flex items-center gap-1 text-indigo-300">
+              <div className="pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
+                <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-300 font-medium">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Estado: {fase.estado_previo}</span>
                 </span>
-                <span className="font-mono text-zinc-500">
+                <span className="font-mono text-slate-400 dark:text-zinc-500">
                   {completedInThisPhase}/{phaseConceptCount} listos
                 </span>
               </div>

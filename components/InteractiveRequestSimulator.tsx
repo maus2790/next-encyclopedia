@@ -10,8 +10,6 @@ import {
   Cpu, 
   Database, 
   Zap, 
-  Layers, 
-  ArrowRight,
   Clock,
   Sparkles
 } from "lucide-react";
@@ -100,7 +98,6 @@ const STEPS: Step[] = [
 export default function InteractiveRequestSimulator() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [scenario, setScenario] = useState<"server-action" | "ssr-page">("server-action");
 
   const runSimulation = () => {
     setIsRunning(true);
@@ -124,17 +121,17 @@ export default function InteractiveRequestSimulator() {
   };
 
   return (
-    <div className="w-full my-8 p-6 glass-panel rounded-2xl border border-white/10 space-y-6">
+    <div className="w-full my-8 p-6 glass-panel rounded-2xl border border-slate-200 dark:border-white/10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">
             <Zap className="h-4 w-4" />
             <span>Simulador Interactivo de Ciclo de Vida</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-white">
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             ¿Cómo viaja una petición por las 8 capas?
           </h3>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1">
             Observa paso a paso cómo interactúan el navegador, el Edge Middleware, el Backend Next.js 16 y MongoDB.
           </p>
         </div>
@@ -155,7 +152,7 @@ export default function InteractiveRequestSimulator() {
           </button>
           <button
             onClick={resetSimulation}
-            className="p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 transition-colors"
+            className="p-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 transition-colors shadow-xs"
             title="Reiniciar simulador"
           >
             <RotateCcw className="h-4 w-4" />
@@ -175,10 +172,10 @@ export default function InteractiveRequestSimulator() {
               key={step.id}
               className={`p-4 rounded-xl border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
                 isActive
-                  ? "bg-slate-900/90 border-2 scale-[1.02] shadow-xl ring-2"
+                  ? "bg-white dark:bg-slate-900/90 border-2 scale-[1.02] shadow-xl ring-2"
                   : isDone
-                  ? "bg-slate-950/70 border-emerald-500/30 opacity-90"
-                  : "bg-slate-950/40 border-white/5 opacity-50"
+                  ? "bg-slate-50 dark:bg-slate-950/70 border-emerald-500/40"
+                  : "bg-white/60 dark:bg-slate-950/40 border-slate-200 dark:border-white/5 opacity-70"
               }`}
               style={{
                 borderColor: isActive ? step.color : isDone ? "#10b981" : undefined,
@@ -205,7 +202,7 @@ export default function InteractiveRequestSimulator() {
                   >
                     {step.capa}
                   </span>
-                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-zinc-400">
                     <Clock className="h-3 w-3" />
                     <span>{step.latencia}</span>
                   </div>
@@ -218,26 +215,26 @@ export default function InteractiveRequestSimulator() {
                   >
                     <Icon className="h-4 w-4" />
                   </div>
-                  <h4 className="text-sm font-bold text-white leading-tight">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
                     {step.nombre}
                   </h4>
                 </div>
 
-                <p className="text-xs text-zinc-300 leading-relaxed mb-3">
+                <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed mb-3">
                   {step.descripcion}
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px]">
-                <span className="text-zinc-400 font-mono">{step.tecnologia}</span>
+              <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 dark:text-zinc-400 font-mono">{step.tecnologia}</span>
                 {isDone && (
-                  <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                     <CheckCircle className="h-3.5 w-3.5" />
                     <span>OK</span>
                   </span>
                 )}
                 {isActive && (
-                  <span className="flex items-center gap-1 text-indigo-400 font-semibold animate-pulse">
+                  <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold animate-pulse">
                     <span>Procesando...</span>
                   </span>
                 )}
@@ -248,17 +245,17 @@ export default function InteractiveRequestSimulator() {
       </div>
 
       {/* Latency Total Result */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/80 border border-white/10 text-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-xs">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-bold">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
             ✓
           </div>
           <div>
-            <span className="font-semibold text-white">Tiempo Total Estimado de Round-Trip:</span>
-            <span className="text-emerald-400 font-mono font-bold ml-2">~90ms (Edge + Next.js 16 + Redis)</span>
+            <span className="font-semibold text-slate-900 dark:text-white">Tiempo Total Estimado de Round-Trip:</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold ml-2">~90ms (Edge + Next.js 16 + Redis)</span>
           </div>
         </div>
-        <span className="text-zinc-400">
+        <span className="text-slate-500 dark:text-zinc-400">
           Cero cuellos de botella gracias a ejecución distribuida e invalidación ISR.
         </span>
       </div>

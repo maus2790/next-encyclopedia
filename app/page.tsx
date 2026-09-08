@@ -9,12 +9,7 @@ import {
   ArrowRight, 
   Sparkles, 
   Terminal, 
-  Layers, 
   Compass, 
-  ShieldCheck, 
-  Zap, 
-  Database,
-  Cpu,
   Bot
 } from "lucide-react";
 
@@ -23,19 +18,19 @@ export default async function Home() {
   const destacados = conceptos.slice(0, 6);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
       <Navbar />
 
       <main className="flex-1">
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden pt-12 pb-20 border-b border-white/10">
+        <section className="relative overflow-hidden pt-12 pb-20 border-b border-slate-200 dark:border-white/10">
           {/* Subtle Glow Spheres */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-r from-indigo-500/20 via-purple-500/15 to-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-r from-indigo-500/15 via-purple-500/10 to-sky-500/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center max-w-4xl space-y-6">
             {/* Version Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-xs font-semibold text-indigo-300 shadow-inner">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-xs font-semibold text-indigo-700 dark:text-indigo-300 shadow-xs">
+              <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
               <span>Optimizada para Next.js 16 + React 19 + MongoDB</span>
             </div>
 
@@ -46,7 +41,7 @@ export default async function Home() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               No es una lista plana de librerías. Es una <strong>arquitectura conceptual en 8 capas</strong>: desde el protocolo HTTP hasta pruebas End-to-End con Playwright, anclada en tu stack real.
             </p>
 
@@ -61,14 +56,14 @@ export default async function Home() {
               </Link>
               <Link
                 href="/roadmap"
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 border border-white/15 hover:border-white/30 text-white text-sm font-bold hover:bg-slate-800 transition-all"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/15 hover:border-slate-300 dark:hover:border-white/30 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-xs"
               >
-                <Compass className="h-4 w-4 text-indigo-400" />
+                <Compass className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 <span>Ruta en 6 Fases</span>
               </Link>
               <Link
                 href="/prompt-studio"
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 text-purple-300 text-sm font-bold transition-all"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 hover:bg-purple-100 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-sm font-bold transition-all shadow-xs"
               >
                 <Bot className="h-4 w-4" />
                 <span>AI Prompt Studio</span>
@@ -81,7 +76,7 @@ export default async function Home() {
                 <Link
                   key={capa.id}
                   href={`/conceptos?capa=${capa.id}`}
-                  className="px-3 py-1 rounded-lg text-xs font-mono font-medium border border-white/10 bg-slate-900/60 hover:bg-slate-900 hover:border-white/30 transition-colors text-zinc-300"
+                  className="px-3 py-1 rounded-lg text-xs font-mono font-medium border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 hover:border-slate-300 dark:hover:border-white/30 transition-colors text-slate-700 dark:text-zinc-300 shadow-2xs"
                 >
                   <span style={{ color: capa.color }}>C{capa.numero}:</span> {capa.nombre.split("(")[0].trim()}
                 </Link>
@@ -104,17 +99,17 @@ export default async function Home() {
         <section className="container mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-end justify-between gap-4 mb-8">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-1">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-1">
                 <Terminal className="h-4 w-4" />
                 <span>Conceptos Fundamentales</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Destacados del Ecosistema
               </h2>
             </div>
             <Link
               href="/conceptos"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
             >
               <span>Ver todos ({conceptos.length})</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -130,16 +125,16 @@ export default async function Home() {
 
         {/* PROMPT CALLOUT */}
         <section className="container mx-auto px-4 sm:px-6 py-12">
-          <div className="p-8 rounded-3xl bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-slate-900 border border-purple-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="p-8 rounded-3xl bg-gradient-to-r from-purple-100/80 via-indigo-50 to-slate-100 dark:from-purple-950/60 dark:via-indigo-950/40 dark:to-slate-900 border border-purple-200 dark:border-purple-500/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
             <div className="space-y-2 max-w-xl">
-              <div className="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">
                 <Bot className="h-4 w-4" />
                 <span>¿Tienes dudas técnicas sobre un concepto?</span>
               </div>
-              <h3 className="text-2xl font-bold text-white">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Usa el Asistente de Prompts IA para tu Stack
               </h3>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-slate-600 dark:text-zinc-300">
                 Genera preguntas hiper-específicas para tu IA sobre middlewares con JWT, pipelines de agregación en MongoDB, o streaming con Suspense en Next.js 16 con un solo clic.
               </p>
             </div>

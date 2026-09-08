@@ -17,9 +17,6 @@ import {
   Sparkles, 
   Filter, 
   X, 
-  ArrowUpDown,
-  BookOpen,
-  CheckCircle2,
   ExternalLink
 } from "lucide-react";
 
@@ -76,22 +73,22 @@ export default function InteractiveExplorer({
   return (
     <div className="w-full space-y-6">
       {/* Search & Navigation Toolbar */}
-      <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-white/10 space-y-4">
+      <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search bar */}
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-zinc-400" />
             <input
               type="text"
               placeholder="Buscar por concepto, tecnología (ej. cookies, Mongoose, ISR, Playwright)..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-950/80 border border-white/15 text-white placeholder:text-zinc-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-white/15 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-xs"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -99,13 +96,13 @@ export default function InteractiveExplorer({
           </div>
 
           {/* View Mode Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-950 border border-white/10 self-start md:self-auto overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-white/10 self-start md:self-auto overflow-x-auto max-w-full">
             <button
               onClick={() => setViewMode("grid")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                 viewMode === "grid"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Grid className="h-3.5 w-3.5" />
@@ -116,7 +113,7 @@ export default function InteractiveExplorer({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                 viewMode === "table"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Table className="h-3.5 w-3.5" />
@@ -127,7 +124,7 @@ export default function InteractiveExplorer({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                 viewMode === "layers"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
@@ -138,7 +135,7 @@ export default function InteractiveExplorer({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                 viewMode === "roadmap"
                   ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Compass className="h-3.5 w-3.5" />
@@ -149,7 +146,7 @@ export default function InteractiveExplorer({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                 viewMode === "ai"
                   ? "bg-purple-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
@@ -159,8 +156,8 @@ export default function InteractiveExplorer({
         </div>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5 text-xs">
-          <span className="text-zinc-400 font-semibold flex items-center gap-1 mr-1">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 dark:border-white/5 text-xs">
+          <span className="text-slate-600 dark:text-zinc-400 font-semibold flex items-center gap-1 mr-1">
             <Filter className="h-3 w-3" />
             <span>Capas:</span>
           </span>
@@ -168,8 +165,8 @@ export default function InteractiveExplorer({
             onClick={() => setSelectedCapa(null)}
             className={`px-3 py-1 rounded-full font-medium transition-all ${
               selectedCapa === null
-                ? "bg-indigo-500 text-white font-bold"
-                : "bg-slate-900 text-zinc-400 hover:text-white hover:bg-slate-800"
+                ? "bg-indigo-600 text-white font-bold shadow-xs"
+                : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800"
             }`}
           >
             Todas ({initialConceptos.length})
@@ -182,13 +179,13 @@ export default function InteractiveExplorer({
                 onClick={() => setSelectedCapa(isSelected ? null : capa.id)}
                 className={`px-3 py-1 rounded-full font-medium transition-all flex items-center gap-1.5 border ${
                   isSelected
-                    ? "text-white font-bold shadow-sm"
-                    : "bg-slate-900/80 text-zinc-400 hover:text-white border-white/5 hover:border-white/20"
+                    ? "text-white font-bold shadow-xs"
+                    : "bg-white dark:bg-slate-900/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20"
                 }`}
                 style={{
-                  backgroundColor: isSelected ? `${capa.color}30` : undefined,
+                  backgroundColor: isSelected ? capa.color : undefined,
                   borderColor: isSelected ? capa.color : undefined,
-                  color: isSelected ? capa.color : undefined,
+                  color: isSelected ? "#ffffff" : undefined,
                 }}
               >
                 <span>C{capa.numero}: {capa.nombre.split("(")[0].trim()}</span>
@@ -204,8 +201,8 @@ export default function InteractiveExplorer({
                 onClick={() => setSelectedDifficulty(selectedDifficulty === diff ? null : diff)}
                 className={`px-2.5 py-1 rounded-md capitalize text-[11px] transition-all ${
                   selectedDifficulty === diff
-                    ? "bg-white/20 text-white font-bold"
-                    : "bg-white/5 text-zinc-400 hover:text-white"
+                    ? "bg-indigo-600 text-white font-bold"
+                    : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 {diff}
@@ -214,7 +211,7 @@ export default function InteractiveExplorer({
             {hasActiveFilters && (
               <button
                 onClick={resetFilters}
-                className="text-[11px] text-rose-400 hover:underline ml-2"
+                className="text-[11px] text-rose-500 hover:underline ml-2"
               >
                 Limpiar
               </button>
@@ -238,19 +235,19 @@ export default function InteractiveExplorer({
 
       {viewMode === "grid" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-zinc-400 px-1">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 px-1">
             <span>Mostrando <strong>{filteredConceptos.length}</strong> conceptos encontrados</span>
             {selectedCapa && (
-              <span className="text-indigo-400 font-medium">
+              <span className="text-indigo-600 dark:text-indigo-400 font-medium">
                 Filtrado por: {getCapaById(selectedCapa)?.nombre}
               </span>
             )}
           </div>
 
           {filteredConceptos.length === 0 ? (
-            <div className="p-12 text-center glass-panel rounded-2xl border border-white/10 space-y-3">
-              <p className="text-base text-zinc-300 font-semibold">No se encontraron conceptos para tu búsqueda.</p>
-              <p className="text-xs text-zinc-500">Prueba con términos como "Next.js", "CORS", "MongoDB", "Token" o limpia los filtros.</p>
+            <div className="p-12 text-center glass-panel rounded-2xl border border-slate-200 dark:border-white/10 space-y-3">
+              <p className="text-base text-slate-800 dark:text-zinc-300 font-semibold">No se encontraron conceptos para tu búsqueda.</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-500">Prueba con términos como "Next.js", "CORS", "MongoDB", "Token" o limpia los filtros.</p>
               <button
                 onClick={resetFilters}
                 className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors"
@@ -269,11 +266,11 @@ export default function InteractiveExplorer({
       )}
 
       {viewMode === "table" && (
-        <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
+        <div className="glass-panel rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-white/10 bg-slate-950/80 text-zinc-400 font-semibold uppercase tracking-wider">
+                <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-950/80 text-slate-700 dark:text-zinc-400 font-semibold uppercase tracking-wider">
                   <th className="p-3.5">Capa</th>
                   <th className="p-3.5">Concepto</th>
                   <th className="p-3.5">Explicación Profunda</th>
@@ -282,11 +279,11 @@ export default function InteractiveExplorer({
                   <th className="p-3.5 text-right">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {filteredConceptos.map((c) => {
                   const capa = getCapaById(c.capa);
                   return (
-                    <tr key={c.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                       <td className="p-3.5 font-mono whitespace-nowrap">
                         <span
                           className="px-2 py-0.5 rounded text-[10px] font-bold"
@@ -299,26 +296,26 @@ export default function InteractiveExplorer({
                           C{c.capaNumero}
                         </span>
                       </td>
-                      <td className="p-3.5 font-bold text-white whitespace-nowrap">
-                        <Link href={`/conceptos/${c.id}`} className="hover:text-indigo-400 hover:underline">
+                      <td className="p-3.5 font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                        <Link href={`/conceptos/${c.id}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline">
                           {c.nombre}
                         </Link>
                       </td>
-                      <td className="p-3.5 text-zinc-300 max-w-sm leading-relaxed">
+                      <td className="p-3.5 text-slate-600 dark:text-zinc-300 max-w-sm leading-relaxed">
                         {c.descripcion_corta}
                       </td>
-                      <td className="p-3.5 text-indigo-300 font-medium max-w-xs leading-relaxed">
+                      <td className="p-3.5 text-indigo-700 dark:text-indigo-300 font-medium max-w-xs leading-relaxed">
                         {c.resumen_practico || c.en_tu_stack || "Next.js 16 + Mongo"}
                       </td>
                       <td className="p-3.5 whitespace-nowrap">
-                        <span className="capitalize px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/5 text-[10px]">
+                        <span className="capitalize px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-white/5 text-[10px]">
                           {c.dificultad}
                         </span>
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
                         <Link
                           href={`/conceptos/${c.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-semibold transition-colors"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-semibold transition-colors shadow-xs"
                         >
                           <span>Guía</span>
                           <ExternalLink className="h-3 w-3" />
